@@ -1,26 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { verifyToken } from '@/lib/auth';
 
-export async function middleware(request: NextRequest) {
+export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  if (pathname.startsWith('/api/admin') || pathname === '/admin') {
+  // Only protect API routes with middleware
+  // Admin page auth is handled client-side via layout.tsx
+  if (pathname.startsWith('/api/admin')) {
+    // Allow login endpoint
     if (pathname === '/api/admin/login') return NextResponse.next();
 
     const token = request.cookies.get('admin_token')?.value;
 
     if (!token) {
-      if (pathname.startsWith('/api/')) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-      return NextResponse.redirect(new URL('/admin', request.url));
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    try {
-      await verifyToken(token);
-      return NextResponse.next();
-    } catch {
-      if (pathname.startsWith('/api/')) return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
-      return NextResponse.redirect(new URL('/admin', request.url));
-    }
+    // Token verification happens in each API route handler for simplicity
+    return NextResponse.next();
   }
 
   return NextResponse.next();

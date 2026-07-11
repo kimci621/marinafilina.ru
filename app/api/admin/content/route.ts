@@ -1,7 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getContent, updateContent } from '@/lib/content';
+import { verifyToken } from '@/lib/auth';
 
-export async function GET() {
+async function checkAuth(request: NextRequest): Promise<boolean> {
+  const token = request.cookies.get('admin_token')?.value;
+  if (!token) return false;
+  try { await verifyToken(token); return true; } catch { return false; }
+}
+
+export async function GET(request: NextRequest) {
+  if (!(await checkAuth(request))) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   try {
     const content = await getContent();
     return NextResponse.json(content);
@@ -11,6 +19,7 @@ export async function GET() {
 }
 
 export async function PUT(request: NextRequest) {
+  if (!(await checkAuth(request))) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   try {
     const body = await request.json();
 

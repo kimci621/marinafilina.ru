@@ -2,25 +2,32 @@ import { NextRequest, NextResponse } from 'next/server';
 import { writeFile, unlink, mkdir } from 'fs/promises';
 import { join } from 'path';
 import { randomUUID } from 'crypto';
+import { verifyToken } from '@/lib/auth';
 
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
 const MAX_SIZE = 5 * 1024 * 1024;
 
+async function checkAuth(request: NextRequest): Promise<boolean> {
+  const token = request.cookies.get('admin_token')?.value;
+  if (!token) return false;
+  try { await verifyToken(token); return true; } catch { return false; }
+}
+
 export async function POST(request: NextRequest) {
+  if (!(await checkAuth(request))) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   const formData = await request.formData();
   const file = formData.get('file') as File | null;
 
-  if (!file) return NextResponse.json({ error: 'No file provided' }, { status: 400 });
-  if (!ALLOWED_TYPES.includes(file.type)) return NextResponse.json({ error: 'Invalid file type' }, { status: 400 });
+  if (!file) return NextResponse.json({ error: 'No file' }, { status: 400 });
+  if (!ALLOWED_TYPES.includes(file.type)) return NextResponse.json({ error: 'Invalid type' }, { status: 400 });
   if (file.size > MAX_SIZE) return NextResponse.json({ error: 'Max 5MB' }, { status: 400 });
 
   const bytes = new Uint8Array(await file.arrayBuffer());
-  if (!validateMagic(bytes, file.type)) return NextResponse.json({ error: 'Invalid file content' }, { status: 400 });
+  if (!validateMagic(bytes, file.type)) return NextResponse.json({ error: 'Invalid content' }, { status: 400 });
 
   const ext = file.type.split('/')[1] || 'jpg';
   const filename = `${randomUUID()}.${ext}`;
   const uploadDir = join(process.cwd(), 'public', 'uploads');
-
   await mkdir(uploadDir, { recursive: true });
   await writeFile(join(uploadDir, filename), Buffer.from(bytes));
 
@@ -28,16 +35,13 @@ export async function POST(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
+  if (!(await checkAuth(request))) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   const { url } = await request.json();
   if (!url || typeof url !== 'string' || !url.startsWith('/uploads/')) {
-    return NextResponse.json({ error: 'Invalid file URL' }, { status: 400 });
+    return NextResponse.json({ error: 'Invalid URL' }, { status: 400 });
   }
-  try {
-    await unlink(join(process.cwd(), 'public', url));
-    return NextResponse.json({ success: true });
-  } catch {
-    return NextResponse.json({ error: 'File not found' }, { status: 404 });
-  }
+  try { await unlink(join(process.cwd(), 'public', url)); return NextResponse.json({ success: true }); }
+  catch { return NextResponse.json({ error: 'Not found' }, { status: 404 }); }
 }
 
 function validateMagic(bytes: Uint8Array, mime: string): boolean {
