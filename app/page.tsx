@@ -22,7 +22,7 @@ export default async function HomePage() {
         <Hero title={home.hero.title} subtitle={home.hero.subtitle} />
 
         <section id="work">
-          {home.projects.map((slug) => {
+          {home.projects.map((slug: string) => {
             const project = projects[slug];
             if (!project) return null;
             return (
