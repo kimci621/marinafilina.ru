@@ -1,8 +1,13 @@
 'use client';
 
-import { useState, useEffect, FormEvent } from 'react';
+import { useState, useEffect } from 'react';
 import AdminLayout from '@/components/admin/AdminLayout';
-import type { SiteContent } from '@/types/content';
+import type { SiteContent, ProjectContent } from '@/types/content';
+
+const EMPTY_PROJECT: ProjectContent = {
+  title: '', subtitle: '', description: '', images: [], category: '',
+  client: '', task: '', concept: '', services: [], timeline: '', liveUrl: '',
+};
 
 export default function ContentEditor() {
   const [content, setContent] = useState<SiteContent | null>(null);
@@ -22,17 +27,13 @@ export default function ContentEditor() {
     if (!content) return;
     setSaving(true); setMessage('');
     try {
-      const res = await fetch('/api/admin/content', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(content),
-      });
+      const res = await fetch('/api/admin/content', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(content) });
       setMessage(res.ok ? '✅ Сохранено' : '❌ Ошибка сохранения');
     } catch { setMessage('❌ Сетевая ошибка'); }
     finally { setSaving(false); setShowConfirm(false); }
   };
 
-  const updateField = (path: string[], value: string) => {
+  const updateField = (path: (string | number)[], value: any) => {
     if (!content) return;
     const nc = structuredClone(content);
     let obj: any = nc;
@@ -41,8 +42,43 @@ export default function ContentEditor() {
     setContent(nc);
   };
 
-  if (loading) return <div className="text-body text-(--color-text-muted) p-[40px]">Загрузка...</div>;
-  if (!content) return <div className="text-body text-(--color-text-muted) p-[40px]">Ошибка загрузки</div>;
+  const moveItem = (path: (string | number)[], from: number, to: number) => {
+    if (!content) return;
+    const nc = structuredClone(content);
+    let obj: any = nc;
+    for (let i = 0; i < path.length - 1; i++) obj = obj[path[i]];
+    const arr = obj[path[path.length - 1]];
+    const [item] = arr.splice(from, 1);
+    arr.splice(to, 0, item);
+    setContent(nc);
+  };
+
+  const removeItem = (path: (string | number)[], index: number) => {
+    if (!content) return;
+    const nc = structuredClone(content);
+    let obj: any = nc;
+    for (let i = 0; i < path.length - 1; i++) obj = obj[path[i]];
+    obj[path[path.length - 1]].splice(index, 1);
+    setContent(nc);
+  };
+
+  const addProject = () => {
+    if (!content) return;
+    const slug = 'project-' + Date.now();
+    updateField(['projects', slug], { ...EMPTY_PROJECT, title: 'Новый проект' });
+    updateField(['home', 'projects'], [...content.home.projects, slug]);
+  };
+
+  const removeProject = (slug: string) => {
+    if (!content) return;
+    const nc = structuredClone(content);
+    delete nc.projects[slug];
+    nc.home.projects = nc.home.projects.filter((s) => s !== slug);
+    setContent(nc);
+  };
+
+  if (loading) return <div className="text-body p-[40px]">Загрузка...</div>;
+  if (!content) return <div className="text-body p-[40px]">Ошибка загрузки</div>;
 
   return (
     <AdminLayout>
@@ -55,6 +91,7 @@ export default function ContentEditor() {
               {tab === 'projects' && 'Проекты'}
               {tab === 'footer' && 'Футер'}
               {tab === 'seo' && 'SEO'}
+              {tab === 'ui' && 'Интерфейс'}
             </h1>
             <button onClick={() => setShowConfirm(true)} disabled={saving}
               className="px-[24px] py-[10px] bg-(--color-text) text-(--color-surface) text-link hover:opacity-90 transition-opacity disabled:opacity-30">
@@ -70,39 +107,145 @@ export default function ContentEditor() {
                 <Field label="Hero — Заголовок" value={content.home.hero.title} onChange={(v) => updateField(['home', 'hero', 'title'], v)} />
                 <Field label="Hero — Подзаголовок" value={content.home.hero.subtitle} onChange={(v) => updateField(['home', 'hero', 'subtitle'], v)} textarea />
                 <Field label="CTA" value={content.home.cta} onChange={(v) => updateField(['home', 'cta'], v)} />
+
+                <SectionTitle label="Порядок проектов" />
+                <ReorderList
+                  items={content.home.projects.map((slug) => ({ key: slug, label: content.projects[slug]?.title || slug }))}
+                  onMove={(f, t) => moveItem(['home', 'projects'], f, t)}
+                  onRemove={(i) => {
+                    const slug = content.home.projects[i];
+                    removeProject(slug);
+                  }}
+                />
               </>
             )}
+
             {tab === 'about' && (
               <>
                 <Field label="Имя" value={content.about.name} onChange={(v) => updateField(['about', 'name'], v)} />
                 <Field label="Заголовок" value={content.about.headline} onChange={(v) => updateField(['about', 'headline'], v)} textarea />
                 <Field label="Телефон" value={content.about.contact.phone} onChange={(v) => updateField(['about', 'contact', 'phone'], v)} />
+
+                <SectionTitle label="Услуги" />
+                {content.about.services.map((s, i) => (
+                  <div key={i} className="border border-(--color-text-muted)/20 p-[12px]">
+                    <Field label="Название" value={s.title} onChange={(v) => updateField(['about', 'services', i, 'title'], v)} />
+                    <Field label="Описание" value={s.description} onChange={(v) => updateField(['about', 'services', i, 'description'], v)} textarea />
+                    <OrderButtons i={i} total={content.about.services.length} onMove={(d) => moveItem(['about', 'services'], i, i + d)} onRemove={() => removeItem(['about', 'services'], i)} />
+                  </div>
+                ))}
+                <button onClick={() => updateField(['about', 'services'], [...content.about.services, { title: '', description: '' }])}
+                  className="text-link border border-(--color-text-muted)/30 px-[16px] py-[8px] hover:border-(--color-text)">+ Услуга</button>
+
+                <SectionTitle label="Опыт" />
+                <ReorderList
+                  items={content.about.experience.map((t, i) => ({ key: String(i), label: t }))}
+                  onMove={(f, t) => moveItem(['about', 'experience'], f, t)}
+                  onRemove={(i) => removeItem(['about', 'experience'], i)}
+                />
+                <button onClick={() => updateField(['about', 'experience'], [...content.about.experience, ''])}
+                  className="text-link border border-(--color-text-muted)/30 px-[16px] py-[8px] hover:border-(--color-text)">+ Пункт</button>
               </>
             )}
+
             {tab === 'projects' && (
               <div className="flex flex-col gap-[30px]">
+                <button onClick={addProject}
+                  className="text-link border border-(--color-text-muted)/30 px-[16px] py-[8px] hover:border-(--color-text) self-start">+ Новый проект</button>
                 {Object.entries(content.projects).map(([slug, project]) => (
                   <details key={slug} className="border border-(--color-text-muted)/20 p-[16px]">
-                    <summary className="text-body cursor-pointer">{project.title}</summary>
+                    <summary className="text-body cursor-pointer">{project.title || slug}</summary>
                     <div className="mt-[16px] flex flex-col gap-[12px]">
+                      <Field label="Slug" value={slug} onChange={(v) => {
+                        const nc = structuredClone(content);
+                        const old = nc.projects[slug];
+                        delete nc.projects[slug];
+                        nc.projects[v] = old;
+                        nc.home.projects = nc.home.projects.map((s) => s === slug ? v : s);
+                        setContent(nc);
+                      }} />
                       <Field label="Название" value={project.title} onChange={(v) => updateField(['projects', slug, 'title'], v)} />
+                      <Field label="Подзаголовок" value={project.subtitle} onChange={(v) => updateField(['projects', slug, 'subtitle'], v)} />
                       <Field label="Клиент" value={project.client} onChange={(v) => updateField(['projects', slug, 'client'], v)} />
+                      <Field label="Категория" value={project.category} onChange={(v) => updateField(['projects', slug, 'category'], v)} />
                       <Field label="Описание" value={project.description} onChange={(v) => updateField(['projects', slug, 'description'], v)} textarea />
+                      <Field label="Задача" value={project.task} onChange={(v) => updateField(['projects', slug, 'task'], v)} textarea />
+                      <Field label="Концепт" value={project.concept} onChange={(v) => updateField(['projects', slug, 'concept'], v)} textarea />
+                      <Field label="Таймлайн" value={project.timeline} onChange={(v) => updateField(['projects', slug, 'timeline'], v)} />
+                      <div className="border-t border-(--color-text-muted)/20 pt-[12px] flex gap-[8px]">
+                        <button onClick={() => removeProject(slug)}
+                          className="text-link text-red-600 hover:opacity-70">Удалить проект</button>
+                      </div>
                     </div>
                   </details>
                 ))}
               </div>
             )}
+
             {tab === 'footer' && (
               <>
+                <Field label="Логотип" value={content.footer.logo} onChange={(v) => updateField(['footer', 'logo'], v)} />
                 <Field label="Email" value={content.footer.email} onChange={(v) => updateField(['footer', 'email'], v)} />
                 <Field label="Телефон" value={content.footer.phone} onChange={(v) => updateField(['footer', 'phone'], v)} />
+
+                <SectionTitle label="Соцсети" />
+                <ReorderList
+                  items={content.footer.socials.map((s) => ({ key: s.label, label: `${s.label} (${s.url})` }))}
+                  onMove={(f, t) => moveItem(['footer', 'socials'], f, t)}
+                  onRemove={(i) => removeItem(['footer', 'socials'], i)}
+                />
+                <button onClick={() => updateField(['footer', 'socials'], [...content.footer.socials, { label: '', url: '' }])}
+                  className="text-link border border-(--color-text-muted)/30 px-[16px] py-[8px] hover:border-(--color-text)">+ Соцсеть</button>
+
+                <SectionTitle label="Нав-ссылки" />
+                <ReorderList
+                  items={content.nav.links.map((l) => ({ key: l.href, label: `${l.label} → ${l.href}` }))}
+                  onMove={(f, t) => moveItem(['nav', 'links'], f, t)}
+                  onRemove={(i) => removeItem(['nav', 'links'], i)}
+                />
+                <button onClick={() => updateField(['nav', 'links'], [...content.nav.links, { label: '', href: '' }])}
+                  className="text-link border border-(--color-text-muted)/30 px-[16px] py-[8px] hover:border-(--color-text)">+ Ссылка</button>
               </>
             )}
+
             {tab === 'seo' && (
               <>
                 <Field label="Home Title" value={content.seo.home?.title || ''} onChange={(v) => updateField(['seo', 'home', 'title'], v)} />
                 <Field label="Home Description" value={content.seo.home?.description || ''} onChange={(v) => updateField(['seo', 'home', 'description'], v)} textarea />
+                <Field label="About Title" value={content.seo.about?.title || ''} onChange={(v) => updateField(['seo', 'about', 'title'], v)} />
+                <Field label="About Description" value={content.seo.about?.description || ''} onChange={(v) => updateField(['seo', 'about', 'description'], v)} textarea />
+              </>
+            )}
+
+            {tab === 'ui' && (
+              <>
+                <SectionTitle label="Навигация" />
+                <Field label="Меню (открыто)" value={content.ui.nav.menuOpen} onChange={(v) => updateField(['ui', 'nav', 'menuOpen'], v)} />
+                <Field label="Меню (закрыто)" value={content.ui.nav.menuClosed} onChange={(v) => updateField(['ui', 'nav', 'menuClosed'], v)} />
+
+                <SectionTitle label="Карточка проекта" />
+                <Field label="Лейбл" value={content.ui.projectCard.label} onChange={(v) => updateField(['ui', 'projectCard', 'label'], v)} />
+                <Field label="Текст ссылки" value={content.ui.projectCard.linkText} onChange={(v) => updateField(['ui', 'projectCard', 'linkText'], v)} />
+                <Field label="Стрелка" value={content.ui.projectCard.linkArrow} onChange={(v) => updateField(['ui', 'projectCard', 'linkArrow'], v)} />
+
+                <SectionTitle label="Футер" />
+                <Field label="Заголовок соцсетей" value={content.ui.footer.socialsLabel} onChange={(v) => updateField(['ui', 'footer', 'socialsLabel'], v)} />
+
+                <SectionTitle label="Обо мне" />
+                <Field label="Опыт работы" value={content.ui.about.experienceLabel} onChange={(v) => updateField(['ui', 'about', 'experienceLabel'], v)} />
+                <Field label="Образование" value={content.ui.about.educationLabel} onChange={(v) => updateField(['ui', 'about', 'educationLabel'], v)} />
+
+                <SectionTitle label="Проект" />
+                <Field label="Задача" value={content.ui.project.taskLabel} onChange={(v) => updateField(['ui', 'project', 'taskLabel'], v)} />
+                <Field label="Концепт" value={content.ui.project.conceptLabel} onChange={(v) => updateField(['ui', 'project', 'conceptLabel'], v)} />
+                <Field label="Услуги" value={content.ui.project.servicesLabel} onChange={(v) => updateField(['ui', 'project', 'servicesLabel'], v)} />
+                <Field label="Предыдущий" value={content.ui.project.prevProject} onChange={(v) => updateField(['ui', 'project', 'prevProject'], v)} />
+                <Field label="Следующий" value={content.ui.project.nextProject} onChange={(v) => updateField(['ui', 'project', 'nextProject'], v)} />
+
+                <SectionTitle label="404" />
+                <Field label="Заголовок" value={content.ui.notFound.title} onChange={(v) => updateField(['ui', 'notFound', 'title'], v)} />
+                <Field label="Текст" value={content.ui.notFound.text} onChange={(v) => updateField(['ui', 'notFound', 'text'], v)} />
+                <Field label="Ссылка" value={content.ui.notFound.linkText} onChange={(v) => updateField(['ui', 'notFound', 'linkText'], v)} />
               </>
             )}
           </div>
@@ -124,15 +267,49 @@ export default function ContentEditor() {
   );
 }
 
-function Field({ label, value, onChange, textarea = false }: { label: string; value: string; onChange: (v: string) => void; textarea?: boolean }) {
+function Field({ label, value, onChange, textarea }: { label: string; value: string; onChange: (v: string) => void; textarea?: boolean }) {
   const Comp = textarea ? 'textarea' : 'input';
   return (
     <label className="flex flex-col gap-[8px]">
       <span className="text-label text-(--color-text-muted)">{label}</span>
       <Comp value={value} onChange={(e) => onChange(e.target.value)}
         className="w-full px-[12px] py-[10px] border border-(--color-text-muted)/30 text-body bg-(--color-surface) focus:outline-none focus:border-(--color-text)"
-        rows={textarea ? 4 : 1}
-      />
+        rows={textarea ? 4 : 1} />
     </label>
+  );
+}
+
+function SectionTitle({ label }: { label: string }) {
+  return <h3 className="text-h4 pt-[20px] border-t border-(--color-text-muted)/20">{label}</h3>;
+}
+
+function OrderButtons({ i, total, onMove, onRemove }: { i: number; total: number; onMove: (d: number) => void; onRemove: () => void }) {
+  return (
+    <div className="flex gap-[8px] mt-[8px]">
+      <button disabled={i === 0} onClick={() => onMove(-1)}
+        className="px-[8px] py-[4px] border border-(--color-text-muted)/20 text-[12px] disabled:opacity-20">↑</button>
+      <button disabled={i === total - 1} onClick={() => onMove(1)}
+        className="px-[8px] py-[4px] border border-(--color-text-muted)/20 text-[12px] disabled:opacity-20">↓</button>
+      <button onClick={onRemove}
+        className="px-[8px] py-[4px] border border-red-600/30 text-[12px] text-red-600 hover:bg-red-50">×</button>
+    </div>
+  );
+}
+
+function ReorderList({ items, onMove, onRemove }: { items: { key: string; label: string }[]; onMove: (f: number, t: number) => void; onRemove: (i: number) => void }) {
+  return (
+    <div className="flex flex-col gap-[4px]">
+      {items.map((item, i) => (
+        <div key={i} className="flex items-center gap-[8px] border border-(--color-text-muted)/20 px-[12px] py-[8px]">
+          <span className="flex-1 text-body truncate">{item.label || '(пусто)'}</span>
+          <button disabled={i === 0} onClick={() => onMove(i, i - 1)}
+            className="px-[6px] py-[2px] border border-(--color-text-muted)/20 text-[12px] disabled:opacity-20">↑</button>
+          <button disabled={i === items.length - 1} onClick={() => onMove(i, i + 1)}
+            className="px-[6px] py-[2px] border border-(--color-text-muted)/20 text-[12px] disabled:opacity-20">↓</button>
+          <button onClick={() => onRemove(i)}
+            className="px-[6px] py-[2px] border border-red-600/30 text-[12px] text-red-600 hover:bg-red-50">×</button>
+        </div>
+      ))}
+    </div>
   );
 }

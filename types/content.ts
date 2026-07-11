@@ -53,6 +53,37 @@ export interface SEOContent {
   description: string;
 }
 
+export interface UIContent {
+  nav: {
+    menuOpen: string;
+    menuClosed: string;
+  };
+  projectCard: {
+    label: string;
+    linkText: string;
+    linkArrow: string;
+  };
+  footer: {
+    socialsLabel: string;
+  };
+  about: {
+    experienceLabel: string;
+    educationLabel: string;
+  };
+  project: {
+    taskLabel: string;
+    conceptLabel: string;
+    servicesLabel: string;
+    prevProject: string;
+    nextProject: string;
+  };
+  notFound: {
+    title: string;
+    text: string;
+    linkText: string;
+  };
+}
+
 export interface SiteContent {
   nav: {
     logo: string;
@@ -67,4 +98,5 @@ export interface SiteContent {
   projects: Record<string, ProjectContent>;
   footer: FooterContent;
   seo: Record<string, SEOContent>;
+  ui: UIContent;
 }

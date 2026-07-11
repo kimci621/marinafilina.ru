@@ -2,14 +2,15 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import type { NavLink } from '@/types/content';
+import type { NavLink, UIContent } from '@/types/content';
 
 interface NavMobileProps {
   logo: string;
   links: NavLink[];
+  ui: UIContent['nav'];
 }
 
-export default function NavMobile({ logo, links }: NavMobileProps) {
+export default function NavMobile({ logo, links, ui }: NavMobileProps) {
   const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
@@ -36,7 +37,7 @@ export default function NavMobile({ logo, links }: NavMobileProps) {
           className="text-(--color-text-nav) text-nav hover:opacity-70 transition-opacity"
           aria-label={menuOpen ? 'Close menu' : 'Open menu'}
         >
-          {menuOpen ? 'Close' : 'Меню'}
+          {menuOpen ? ui.menuOpen : ui.menuClosed}
         </button>
       </div>
 

@@ -125,5 +125,35 @@
       "title": "Обо мне — Марина Филина",
       "description": "Бренд-дизайнер Марина Филина. Брендинг, айдентика, графический дизайн."
     }
+  },
+  "ui": {
+    "nav": {
+      "menuOpen": "Close",
+      "menuClosed": "Меню"
+    },
+    "projectCard": {
+      "label": "Project",
+      "linkText": "Посмотреть проект",
+      "linkArrow": "→"
+    },
+    "footer": {
+      "socialsLabel": "СОЦСЕТИ"
+    },
+    "about": {
+      "experienceLabel": "Опыт работы",
+      "educationLabel": "Образование"
+    },
+    "project": {
+      "taskLabel": "Задача",
+      "conceptLabel": "Концепт",
+      "servicesLabel": "Услуги",
+      "prevProject": "← предыдущий проект",
+      "nextProject": "следующий проект →"
+    },
+    "notFound": {
+      "title": "404",
+      "text": "Страница не найдена",
+      "linkText": "На главную →"
+    }
   }
 }

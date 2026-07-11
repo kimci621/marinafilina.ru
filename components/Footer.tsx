@@ -1,13 +1,14 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import type { FooterContent } from '@/types/content';
+import type { FooterContent, UIContent } from '@/types/content';
 
 interface FooterProps {
   content: FooterContent;
+  ui: UIContent['footer'];
 }
 
-export default function Footer({ content }: FooterProps) {
+export default function Footer({ content, ui }: FooterProps) {
   return (
     <motion.footer
       id="contacts"
@@ -39,7 +40,7 @@ export default function Footer({ content }: FooterProps) {
           </div>
 
           <div>
-            <span className="text-nav text-(--color-text) block mb-[20px]">СОЦСЕТИ</span>
+            <span className="text-nav text-(--color-text) block mb-[20px]">{ui.socialsLabel}</span>
             <div className="flex flex-col gap-[10px]">
               {content.socials.map((social) => (
                 <a

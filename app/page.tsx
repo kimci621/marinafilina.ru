@@ -8,12 +8,12 @@ import Footer from '@/components/Footer';
 
 export default async function HomePage() {
   const content = await getContent();
-  const { nav, home, footer } = content;
+  const { nav, home, footer, ui } = content;
 
   return (
     <>
       <Nav logo={nav.logo} links={nav.links} />
-      <NavMobile logo={nav.logo} links={nav.links} />
+      <NavMobile logo={nav.logo} links={nav.links} ui={ui.nav} />
 
       <main>
         <Hero title={home.hero.title} subtitle={home.hero.subtitle} />
@@ -30,6 +30,7 @@ export default async function HomePage() {
                 images={project.images}
                 description={project.description}
                 slug={slug}
+                ui={ui.projectCard}
               />
             );
           })}
@@ -37,7 +38,7 @@ export default async function HomePage() {
 
         <CTASection text={home.cta} />
 
-        <Footer content={footer} />
+        <Footer content={footer} ui={ui.footer} />
       </main>
     </>
   );

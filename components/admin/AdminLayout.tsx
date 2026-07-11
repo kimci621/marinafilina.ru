@@ -2,13 +2,14 @@
 
 import { useState } from 'react';
 
-type Tab = 'home' | 'about' | 'projects' | 'footer' | 'seo';
+type Tab = 'home' | 'about' | 'projects' | 'footer' | 'seo' | 'ui';
 const TABS: { key: Tab; label: string }[] = [
   { key: 'home', label: 'Home' },
   { key: 'about', label: 'About' },
   { key: 'projects', label: 'Projects' },
   { key: 'footer', label: 'Footer' },
   { key: 'seo', label: 'SEO' },
+  { key: 'ui', label: 'UI' },
 ];
 
 export default function AdminLayout({ children }: { children: (tab: Tab) => React.ReactNode }) {

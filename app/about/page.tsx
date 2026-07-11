@@ -14,12 +14,12 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function AboutPage() {
   const content = await getContent();
-  const { nav, about, footer } = content;
+  const { nav, about, footer, ui } = content;
 
   return (
     <>
       <Nav logo={nav.logo} links={nav.links} />
-      <NavMobile logo={nav.logo} links={nav.links} />
+      <NavMobile logo={nav.logo} links={nav.links} ui={ui.nav} />
 
       <main className="pt-[80px]">
         <section className="content-container py-[60px]">
@@ -48,7 +48,7 @@ export default async function AboutPage() {
           <div className="flex flex-col tablet:flex-row gap-[60px]">
             <div className="tablet:w-1/2">
               <h2 className="text-subtitle-tablet desktop:text-subtitle-desktop mb-[24px]">
-                Опыт работы
+                {ui.about.experienceLabel}
               </h2>
               <ul className="flex flex-col gap-[12px]">
                 {about.experience.map((item, i) => (
@@ -58,7 +58,7 @@ export default async function AboutPage() {
             </div>
             <div className="tablet:w-1/2">
               <h2 className="text-subtitle-tablet desktop:text-subtitle-desktop mb-[24px]">
-                Образование
+                {ui.about.educationLabel}
               </h2>
               <ul className="flex flex-col gap-[12px]">
                 {about.education.map((item, i) => (
@@ -87,7 +87,7 @@ export default async function AboutPage() {
         </section>
       </main>
 
-      <Footer content={footer} />
+      <Footer content={footer} ui={ui.footer} />
     </>
   );
 }

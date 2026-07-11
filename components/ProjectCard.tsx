@@ -4,6 +4,7 @@ import { useRef } from 'react';
 import Link from 'next/link';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import ImageSlider from './ImageSlider';
+import type { UIContent } from '@/types/content';
 
 interface ProjectCardProps {
   title: string;
@@ -11,9 +12,10 @@ interface ProjectCardProps {
   images: string[];
   description: string;
   slug: string;
+  ui: UIContent['projectCard'];
 }
 
-export default function ProjectCard({ title, subtitle, images, description, slug }: ProjectCardProps) {
+export default function ProjectCard({ title, subtitle, images, description, slug, ui }: ProjectCardProps) {
   const cardRef = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({
     target: cardRef,
@@ -37,7 +39,7 @@ export default function ProjectCard({ title, subtitle, images, description, slug
       <div className="flex flex-col tablet:flex-row tablet:justify-between mt-[20px]">
         <div className="tablet:w-[341px]">
           <span data-testid="project-label" className="text-label text-(--color-text-muted) block mb-[4px]">
-            Project
+            {ui.label}
           </span>
           <h3 className="text-h3 text-(--color-text)">
             <Link href={`/${slug}`} className="hover:opacity-70 transition-opacity">
@@ -55,13 +57,13 @@ export default function ProjectCard({ title, subtitle, images, description, slug
             data-testid="project-link"
             className="group inline-flex items-center gap-[4px] text-link text-(--color-text-muted) hover:text-(--color-text) transition-colors"
           >
-            Посмотреть проект
+            {ui.linkText}
             <motion.span
               className="inline-block"
               whileHover={{ x: 4 }}
               transition={{ duration: 0.2 }}
             >
-              →
+              {ui.linkArrow}
             </motion.span>
           </Link>
         </div>
