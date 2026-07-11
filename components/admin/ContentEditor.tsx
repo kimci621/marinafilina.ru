@@ -86,11 +86,21 @@ export default function ContentEditor() {
     setContent(nc);
   };
 
-  const addPhoto = async (file: File) => {
+  const addPhoto = async (file: File, isMobile: boolean = false) => {
     if (!content) return;
     const reader = new FileReader();
     reader.onload = () => {
       const id = 'photo-' + Date.now();
+      if (isMobile) {
+        // Add mobile variant to last uploaded photo
+        const photoIds = Object.keys(content.photos);
+        const lastId = photoIds[photoIds.length - 1];
+        if (lastId) {
+          updateField(['photos', lastId, 'mobileData'], reader.result as string);
+          updateField(['photos', lastId, 'mobileFilename'], file.name);
+          return;
+        }
+      }
       updateField(['photos', id], { id, data: reader.result as string, filename: file.name });
     };
     reader.readAsDataURL(file);
@@ -298,16 +308,27 @@ export default function ContentEditor() {
 
             {tab === 'photos' && (
               <div className="flex flex-col gap-[20px]">
-                <label className="flex flex-col gap-[8px]">
-                  <span className="text-label text-(--color-text-muted)">Загрузить фото (base64 в JSON)</span>
-                  <input type="file" accept="image/*" onChange={(e) => { const f = e.target.files?.[0]; if (f) addPhoto(f); }}
-                    className="text-body" />
-                </label>
+                <div className="flex gap-[12px]">
+                  <label className="flex flex-col gap-[8px] flex-1">
+                    <span className="text-label text-(--color-text-muted)">Загрузить фото (десктоп)</span>
+                    <input type="file" accept="image/*" onChange={(e) => { const f = e.target.files?.[0]; if (f) addPhoto(f, false); }}
+                      className="text-body" />
+                  </label>
+                  <label className="flex flex-col gap-[8px] flex-1">
+                    <span className="text-label text-(--color-text-muted)">+ Мобильная версия (к последнему фото)</span>
+                    <input type="file" accept="image/*" onChange={(e) => { const f = e.target.files?.[0]; if (f) addPhoto(f, true); }}
+                      className="text-body" />
+                  </label>
+                </div>
+                <p className="text-[12px] text-(--color-text-muted)">Сначала загрузи десктоп-фото, затем мобильную версию для него. На мобильных устройствах (&lt;800px) покажется мобильный вариант.</p>
                 <SectionTitle label={`Галерея (${Object.keys(content.photos).length} фото)`} />
                 <div className="grid grid-cols-3 gap-[12px]">
                   {Object.values(content.photos).map((photo) => (
                     <div key={photo.id} className="relative border border-(--color-text-muted)/20 group">
                       <img src={photo.data} alt={photo.filename} className="w-full h-[120px] object-cover" />
+                      {photo.mobileData && (
+                        <div className="absolute top-[4px] left-[4px] bg-green-600 text-white text-[10px] px-[4px] py-[1px]">📱</div>
+                      )}
                       <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white text-[10px] p-[4px] truncate">{photo.filename}</div>
                       <button onClick={() => removePhoto(photo.id)}
                         className="absolute top-[4px] right-[4px] w-[20px] h-[20px] bg-red-600 text-white rounded-full text-[12px] opacity-0 group-hover:opacity-100 flex items-center justify-center">×</button>

@@ -6,6 +6,7 @@ import NavMobile from '@/components/NavMobile';
 import Footer from '@/components/Footer';
 import ArrowIcon from '@/components/ArrowIcon';
 import ProjectBlocks from '@/components/ProjectBlocks';
+import { PhotosProvider } from '@/components/PhotosContext';
 import Image from 'next/image';
 
 export const dynamic = 'force-dynamic';
@@ -44,7 +45,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
     : null;
 
   return (
-    <>
+    <PhotosProvider photos={content.photos || {}}>
       <Nav logo={content.nav.logo} links={content.nav.links} />
       <NavMobile logo={content.nav.logo} links={content.nav.links} ui={ui.nav} />
 
@@ -122,6 +123,6 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
       </main>
 
       <Footer content={content.footer} ui={ui.footer} />
-    </>
+    </PhotosProvider>
   );
 }

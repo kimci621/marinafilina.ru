@@ -5,6 +5,7 @@ import Hero from '@/components/Hero';
 import ProjectCard from '@/components/ProjectCard';
 import CTASection from '@/components/CTASection';
 import Footer from '@/components/Footer';
+import { PhotosProvider } from '@/components/PhotosContext';
 
 export const dynamic = 'force-dynamic';
 
@@ -13,7 +14,7 @@ export default async function HomePage() {
   const { nav, home, footer, ui } = content;
 
   return (
-    <>
+    <PhotosProvider photos={content.photos || {}}>
       <Nav logo={nav.logo} links={nav.links} />
       <NavMobile logo={nav.logo} links={nav.links} ui={ui.nav} />
 
@@ -42,6 +43,6 @@ export default async function HomePage() {
 
         <Footer content={footer} ui={ui.footer} />
       </main>
-    </>
+    </PhotosProvider>
   );
 }

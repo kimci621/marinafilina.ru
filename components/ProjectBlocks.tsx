@@ -1,6 +1,6 @@
 'use client';
 
-import Image from 'next/image';
+import ResponsiveImage from './ResponsiveImage';
 import type { ProjectBlock } from '@/types/content';
 
 interface ProjectBlocksProps {
@@ -15,51 +15,23 @@ export default function ProjectBlocks({ blocks }: ProjectBlocksProps) {
       {blocks.map((block, i) => {
         if (block.type === 'wide') {
           return (
-            <div
-              key={i}
-              className="relative w-full"
-              style={{ height: block.height || 600 }}
-            >
-              <Image
-                src={block.image}
-                alt={`Image ${i + 1}`}
-                fill
-                className="object-cover"
-                sizes="100vw"
-              />
+            <div key={i} className="relative w-full" style={{ height: block.height || 600 }}>
+              <ResponsiveImage src={block.image} alt={`Image ${i + 1}`} fill sizes="100vw" />
             </div>
           );
         }
-
         if (block.type === 'split') {
           return (
-            <div
-              key={i}
-              className="flex gap-[20px]"
-              style={{ height: block.height || 800 }}
-            >
-              <div className="relative w-1/2 h-full">
-                <Image
-                  src={block.imageLeft}
-                  alt={`Image ${i + 1}a`}
-                  fill
-                  className="object-cover"
-                  sizes="50vw"
-                />
+            <div key={i} className="flex gap-[20px] max-sm:flex-col" style={{ height: block.height || 800 }}>
+              <div className="relative w-1/2 max-sm:w-full h-full">
+                <ResponsiveImage src={block.imageLeft} alt={`Image ${i + 1}a`} fill sizes="50vw" />
               </div>
-              <div className="relative w-1/2 h-full">
-                <Image
-                  src={block.imageRight}
-                  alt={`Image ${i + 1}b`}
-                  fill
-                  className="object-cover"
-                  sizes="50vw"
-                />
+              <div className="relative w-1/2 max-sm:w-full h-full">
+                <ResponsiveImage src={block.imageRight} alt={`Image ${i + 1}b`} fill sizes="50vw" />
               </div>
             </div>
           );
         }
-
         return null;
       })}
     </div>

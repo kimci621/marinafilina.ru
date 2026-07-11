@@ -1,12 +1,6 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import ImageSlider from '@/components/ImageSlider';
-
-vi.mock('next/image', () => ({
-  default: ({ src, alt, fill, className, sizes }: any) => (
-    <img src={src} alt={alt} className={className} data-fill={fill} data-sizes={sizes} />
-  ),
-}));
 
 describe('ImageSlider', () => {
   const images = ['/test-1.jpg', '/test-2.jpg', '/test-3.jpg'];

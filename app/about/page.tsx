@@ -68,6 +68,6 @@ export default async function AboutPage() {
       </main>
 
       <Footer content={footer} ui={ui.footer} />
-    </>
+    </PhotosProvider>
   );
 }
