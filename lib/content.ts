@@ -1,21 +1,39 @@
-import { readFile, writeFile } from 'fs/promises';
+import { readFile, writeFile, copyFile, access } from 'fs/promises';
 import { join } from 'path';
 import type { SiteContent } from '@/types/content';
-import defaultContent from '@/data/content.json';
 
-const CONTENT_PATH = join(process.cwd(), 'data', 'content.json');
+const RUNTIME_PATH = join(process.cwd(), 'data', 'content.json');
+const DEFAULT_PATH = join(process.cwd(), 'data', 'content.default.json');
+
+async function fileExists(path: string): Promise<boolean> {
+  try { await access(path); return true; } catch { return false; }
+}
 
 export async function getContent(): Promise<SiteContent> {
-  try {
-    const raw = await readFile(CONTENT_PATH, 'utf-8');
+  // 1. Try runtime content (gitignored, survives between deploys locally)
+  if (await fileExists(RUNTIME_PATH)) {
+    const raw = await readFile(RUNTIME_PATH, 'utf-8');
     return JSON.parse(raw);
-  } catch {
-    return defaultContent as unknown as SiteContent;
   }
+
+  // 2. Fallback to default (committed to git, factory defaults)
+  if (await fileExists(DEFAULT_PATH)) {
+    const raw = await readFile(DEFAULT_PATH, 'utf-8');
+    return JSON.parse(raw);
+  }
+
+  // 3. Ultimate fallback (should never happen)
+  throw new Error('No content file found');
 }
 
 export async function updateContent(content: SiteContent): Promise<void> {
-  await writeFile(CONTENT_PATH, JSON.stringify(content, null, 2), 'utf-8');
+  await writeFile(RUNTIME_PATH, JSON.stringify(content, null, 2), 'utf-8');
+}
+
+export async function resetToDefaults(): Promise<void> {
+  if (await fileExists(DEFAULT_PATH)) {
+    await copyFile(DEFAULT_PATH, RUNTIME_PATH);
+  }
 }
 
 export async function getProjectSlugs(): Promise<string[]> {
