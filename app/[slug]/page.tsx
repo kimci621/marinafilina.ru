@@ -63,7 +63,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
             <div className="grid grid-cols-1 tablet:grid-cols-2 desktop:grid-cols-3 gap-[16px]">
               {project.images.map((src, i) => (
                 <div key={i} className="relative aspect-square">
-                  <Image src={src} alt={`${project.title} ${i + 1}`} fill className="object-cover" sizes="(max-width: 799px) 345px, (max-width: 1279px) 375px, 410px" unoptimized />
+                  <ResponsiveImage src={src} alt={`${project.title} ${i + 1}`} fill sizes="(max-width: 799px) 345px, (max-width: 1279px) 375px, 410px" />
                 </div>
               ))}
             </div>
