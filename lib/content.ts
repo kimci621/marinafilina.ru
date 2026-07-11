@@ -6,30 +6,30 @@ const DEFAULT_PATH = join(process.cwd(), 'data', 'content.default.json');
 const RUNTIME_PATH = join(process.cwd(), 'data', 'content.json');
 
 // In-memory cache: survives warm function invocations on Vercel
-// On local dev: file persistence is the primary store
 let cachedContent: SiteContent | null = null;
 
 async function fileExists(path: string): Promise<boolean> {
   try { await access(path); return true; } catch { return false; }
 }
 
+async function loadFromFile(path: string): Promise<SiteContent> {
+  const raw = await readFile(path, 'utf-8');
+  return JSON.parse(raw) as SiteContent;
+}
+
 export async function getContent(): Promise<SiteContent> {
-  // 1. Return cached content if available (fast path for warm instances)
   if (cachedContent) return cachedContent;
 
-  // 2. Try runtime file (works locally, may exist on Vercel from seed)
+  // Try runtime file
   if (await fileExists(RUNTIME_PATH)) {
-    const raw = await readFile(RUNTIME_PATH, 'utf-8');
-    cachedContent = JSON.parse(raw);
+    cachedContent = await loadFromFile(RUNTIME_PATH);
     return cachedContent;
   }
 
-  // 3. Fallback to factory defaults
+  // Fallback to factory defaults
   if (await fileExists(DEFAULT_PATH)) {
-    const raw = await readFile(DEFAULT_PATH, 'utf-8');
-    cachedContent = JSON.parse(raw);
-    // Seed runtime file so next reads can use it (best-effort)
-    try { await writeFile(RUNTIME_PATH, raw, 'utf-8'); } catch {}
+    cachedContent = await loadFromFile(DEFAULT_PATH);
+    try { await writeFile(RUNTIME_PATH, JSON.stringify(cachedContent, null, 2), 'utf-8'); } catch {}
     return cachedContent;
   }
 
@@ -37,14 +37,12 @@ export async function getContent(): Promise<SiteContent> {
 }
 
 export async function updateContent(content: SiteContent): Promise<void> {
-  // In-memory cache (works everywhere, instant)
-  cachedContent = structuredClone(content);
+  cachedContent = content;
 
-  // File persistence (works locally; silently fails on Vercel read-only FS)
   try {
     await writeFile(RUNTIME_PATH, JSON.stringify(content, null, 2), 'utf-8');
   } catch {
-    // Vercel read-only filesystem — data is in cache, pages will use it
+    // Vercel read-only filesystem — data lives in memory cache
   }
 }
 
