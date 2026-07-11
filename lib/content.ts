@@ -1,13 +1,15 @@
-import { supabase } from './supabase';
+import { getClient } from './supabase';
 import defaultContent from '@/data/content.default.json';
 import type { SiteContent } from '@/types/content';
 
-// Single-row table: id=1 always
 const ROW_ID = 1;
 
 export async function getContent(): Promise<SiteContent> {
   try {
-    const { data, error } = await supabase
+    const client = getClient();
+    if (!client) return defaultContent as unknown as SiteContent;
+
+    const { data, error } = await client
       .from('site_content')
       .select('data')
       .eq('id', ROW_ID)
@@ -24,7 +26,10 @@ export async function getContent(): Promise<SiteContent> {
 }
 
 export async function updateContent(content: SiteContent): Promise<void> {
-  await supabase
+  const client = getClient();
+  if (!client) throw new Error('Supabase not configured');
+
+  await client
     .from('site_content')
     .upsert({ id: ROW_ID, data: content, updated_at: new Date().toISOString() });
 }
