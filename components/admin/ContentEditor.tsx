@@ -40,6 +40,12 @@ export default function ContentEditor() {
     for (let i = 0; i < path.length - 1; i++) obj = obj[path[i]];
     obj[path[path.length - 1]] = value;
     setContent(nc);
+    // Auto-save to server (partial update, not full content)
+    fetch('/api/admin/content', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ path, value }),
+    }).catch(() => {});
   };
 
   const moveItem = (path: (string | number)[], from: number, to: number) => {
@@ -51,6 +57,7 @@ export default function ContentEditor() {
     const [item] = arr.splice(from, 1);
     arr.splice(to, 0, item);
     setContent(nc);
+    fetch('/api/admin/content', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ path, value: arr }) }).catch(() => {});
   };
 
   const removeItem = (path: (string | number)[], index: number) => {
@@ -58,8 +65,10 @@ export default function ContentEditor() {
     const nc = structuredClone(content);
     let obj: any = nc;
     for (let i = 0; i < path.length - 1; i++) obj = obj[path[i]];
-    obj[path[path.length - 1]].splice(index, 1);
+    const arr = obj[path[path.length - 1]];
+    arr.splice(index, 1);
     setContent(nc);
+    fetch('/api/admin/content', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ path, value: arr }) }).catch(() => {});
   };
 
   const addProject = () => {
