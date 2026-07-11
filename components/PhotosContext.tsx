@@ -13,11 +13,11 @@ export function usePhotos() {
   return useContext(PhotosContext);
 }
 
-export function getPhotoVariants(dataUrl: string, photos: Record<string, PhotoEntry>) {
+export function getPhotoVariants(imageUrl: string, photos: Record<string, PhotoEntry>) {
   for (const photo of Object.values(photos)) {
-    if (photo.data === dataUrl || photo.mobileData === dataUrl) {
-      return { src: photo.data, mobileSrc: photo.mobileData || undefined };
+    if (photo.url === imageUrl || photo.mobileUrl === imageUrl) {
+      return { src: photo.url, mobileSrc: photo.mobileUrl || undefined };
     }
   }
-  return { src: dataUrl, mobileSrc: undefined };
+  return { src: imageUrl, mobileSrc: undefined };
 }

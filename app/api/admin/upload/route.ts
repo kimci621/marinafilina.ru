@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { writeFile, unlink, mkdir } from 'fs/promises';
-import { join } from 'path';
 import { randomUUID } from 'crypto';
 import { verifyToken } from '@/lib/auth';
+import { supabase } from '@/lib/supabase';
 
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
 const MAX_SIZE = 5 * 1024 * 1024;
@@ -22,36 +21,35 @@ export async function POST(request: NextRequest) {
   if (!ALLOWED_TYPES.includes(file.type)) return NextResponse.json({ error: 'Invalid type' }, { status: 400 });
   if (file.size > MAX_SIZE) return NextResponse.json({ error: 'Max 5MB' }, { status: 400 });
 
-  const bytes = new Uint8Array(await file.arrayBuffer());
-  if (!validateMagic(bytes, file.type)) return NextResponse.json({ error: 'Invalid content' }, { status: 400 });
-
+  const buffer = Buffer.from(await file.arrayBuffer());
   const ext = file.type.split('/')[1] || 'jpg';
   const filename = `${randomUUID()}.${ext}`;
-  const uploadDir = join(process.cwd(), 'public', 'uploads');
-  await mkdir(uploadDir, { recursive: true });
-  await writeFile(join(uploadDir, filename), Buffer.from(bytes));
 
-  return NextResponse.json({ url: `/uploads/${filename}` });
+  const { data, error } = await supabase.storage
+    .from('photos')
+    .upload(filename, buffer, { contentType: file.type, upsert: false });
+
+  if (error) {
+    return NextResponse.json({ error: 'Upload failed: ' + error.message }, { status: 500 });
+  }
+
+  const { data: urlData } = supabase.storage.from('photos').getPublicUrl(filename);
+
+  return NextResponse.json({ url: urlData.publicUrl });
 }
 
 export async function DELETE(request: NextRequest) {
   if (!(await checkAuth(request))) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   const { url } = await request.json();
-  if (!url || typeof url !== 'string' || !url.startsWith('/uploads/')) {
-    return NextResponse.json({ error: 'Invalid URL' }, { status: 400 });
-  }
-  try { await unlink(join(process.cwd(), 'public', url)); return NextResponse.json({ success: true }); }
-  catch { return NextResponse.json({ error: 'Not found' }, { status: 404 }); }
-}
 
-function validateMagic(bytes: Uint8Array, mime: string): boolean {
-  if (bytes.length < 4) return false;
-  const h = Array.from(bytes.slice(0, 4));
-  switch (mime) {
-    case 'image/jpeg': return h[0] === 0xFF && h[1] === 0xD8 && h[2] === 0xFF;
-    case 'image/png': return h[0] === 0x89 && h[1] === 0x50 && h[2] === 0x4E && h[3] === 0x47;
-    case 'image/webp': return h[0] === 0x52 && h[1] === 0x49 && h[2] === 0x46 && h[3] === 0x46;
-    case 'image/gif': return h[0] === 0x47 && h[1] === 0x49 && h[2] === 0x46 && h[3] === 0x38;
-    default: return false;
-  }
+  // Extract filename from public URL
+  const parts = url?.split('/');
+  const filename = parts?.[parts.length - 1];
+
+  if (!filename) return NextResponse.json({ error: 'Invalid URL' }, { status: 400 });
+
+  const { error } = await supabase.storage.from('photos').remove([filename]);
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+
+  return NextResponse.json({ success: true });
 }

@@ -1,67 +1,32 @@
-import { readFile, writeFile, access } from 'fs/promises';
-import { join } from 'path';
-import { put, get } from '@vercel/blob';
+import { supabase } from './supabase';
+import defaultContent from '@/data/content.default.json';
 import type { SiteContent } from '@/types/content';
 
-const DEFAULT_PATH = join(process.cwd(), 'data', 'content.default.json');
-const RUNTIME_PATH = join(process.cwd(), 'data', 'content.json');
-const BLOB_PATH = 'content.json';
-
-async function fileExists(path: string): Promise<boolean> {
-  try { await access(path); return true; } catch { return false; }
-}
-
-async function loadFromFile(path: string): Promise<SiteContent> {
-  const raw = await readFile(path, 'utf-8');
-  return JSON.parse(raw) as SiteContent;
-}
-
-async function loadFromBlob(): Promise<SiteContent | null> {
-  if (!process.env.BLOB_READ_WRITE_TOKEN) return null;
-  try {
-    const result = await get(BLOB_PATH, { access: 'private' });
-    if (!result?.blob?.url) return null;
-    const res = await fetch(result.blob.url, { cache: 'no-store' });
-    const raw = await res.text();
-    return JSON.parse(raw) as SiteContent;
-  } catch {
-    return null;
-  }
-}
-
-async function saveToBlob(content: SiteContent): Promise<boolean> {
-  if (!process.env.BLOB_READ_WRITE_TOKEN) return false;
-  try {
-    await put(BLOB_PATH, JSON.stringify(content, null, 2), { access: 'private' });
-    return true;
-  } catch {
-    return false;
-  }
-}
+// Single-row table: id=1 always
+const ROW_ID = 1;
 
 export async function getContent(): Promise<SiteContent> {
-  // Always read fresh — no cache (prevents stale data across Vercel instances)
+  try {
+    const { data, error } = await supabase
+      .from('site_content')
+      .select('data')
+      .eq('id', ROW_ID)
+      .single();
 
-  // 1. Try Blob (production — always fresh)
-  const blobContent = await loadFromBlob();
-  if (blobContent) return blobContent;
-
-  // 2. Try runtime file (local dev)
-  if (await fileExists(RUNTIME_PATH)) {
-    return loadFromFile(RUNTIME_PATH);
+    if (data?.data && !error) {
+      return data.data as SiteContent;
+    }
+  } catch {
+    // Supabase unavailable — fallback to defaults
   }
 
-  // 3. Fallback to factory defaults
-  if (await fileExists(DEFAULT_PATH)) {
-    return loadFromFile(DEFAULT_PATH);
-  }
-
-  throw new Error('No content file found');
+  return defaultContent as unknown as SiteContent;
 }
 
 export async function updateContent(content: SiteContent): Promise<void> {
-  await saveToBlob(content);
-  try { await writeFile(RUNTIME_PATH, JSON.stringify(content, null, 2), 'utf-8'); } catch {}
+  await supabase
+    .from('site_content')
+    .upsert({ id: ROW_ID, data: content, updated_at: new Date().toISOString() });
 }
 
 export async function getProjectSlugs(): Promise<string[]> {

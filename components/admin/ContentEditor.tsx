@@ -88,22 +88,24 @@ export default function ContentEditor() {
 
   const addPhoto = async (file: File, isMobile: boolean = false) => {
     if (!content) return;
-    const reader = new FileReader();
-    reader.onload = () => {
+    const formData = new FormData();
+    formData.append('file', file);
+    try {
+      const res = await fetch('/api/admin/upload', { method: 'POST', body: formData });
+      if (!res.ok) return;
+      const { url } = await res.json();
       const id = 'photo-' + Date.now();
       if (isMobile) {
-        // Add mobile variant to last uploaded photo
         const photoIds = Object.keys(content.photos);
         const lastId = photoIds[photoIds.length - 1];
         if (lastId) {
-          updateField(['photos', lastId, 'mobileData'], reader.result as string);
+          updateField(['photos', lastId, 'mobileUrl'], url);
           updateField(['photos', lastId, 'mobileFilename'], file.name);
           return;
         }
       }
-      updateField(['photos', id], { id, data: reader.result as string, filename: file.name });
-    };
-    reader.readAsDataURL(file);
+      updateField(['photos', id], { id, url, filename: file.name });
+    } catch {}
   };
 
   const removePhoto = (id: string) => {
@@ -325,8 +327,8 @@ export default function ContentEditor() {
                 <div className="grid grid-cols-3 gap-[12px]">
                   {Object.values(content.photos).map((photo) => (
                     <div key={photo.id} className="relative border border-(--color-text-muted)/20 group">
-                      <img src={photo.data} alt={photo.filename} className="w-full h-[120px] object-cover" />
-                      {photo.mobileData && (
+                      <img src={photo.url} alt={photo.filename} className="w-full h-[120px] object-cover" />
+                      {photo.mobileUrl && (
                         <div className="absolute top-[4px] left-[4px] bg-green-600 text-white text-[10px] px-[4px] py-[1px]">📱</div>
                       )}
                       <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white text-[10px] p-[4px] truncate">{photo.filename}</div>
@@ -440,17 +442,17 @@ function SectionTitle({ label }: { label: string }) {
   return <h3 className="text-h4 pt-[20px] border-t border-(--color-text-muted)/20">{label}</h3>;
 }
 
-function PhotoSelect({ label, value, photos, onChange }: { label: string; value: string; photos: { id: string; data: string; filename: string }[]; onChange: (v: string) => void }) {
-  const selected = photos.find((p) => p.data === value);
+function PhotoSelect({ label, value, photos, onChange }: { label: string; value: string; photos: { id: string; url: string; filename: string }[]; onChange: (v: string) => void }) {
+  const selected = photos.find((p) => p.url === value);
   return (
     <label className="flex flex-col gap-[8px]">
       <span className="text-label text-(--color-text-muted)">{label}</span>
-      {selected && <img src={selected.data} alt={selected.filename} className="w-[80px] h-[60px] object-cover border" />}
+      {selected && <img src={selected.url} alt={selected.filename} className="w-[80px] h-[60px] object-cover border" />}
       <select value={value} onChange={(e) => onChange(e.target.value)}
         className="w-full px-[12px] py-[10px] border border-(--color-text-muted)/30 text-body bg-(--color-surface) focus:outline-none focus:border-(--color-text)">
         <option value="">— Выбрать —</option>
         {photos.map((p) => (
-          <option key={p.id} value={p.data}>{p.filename}</option>
+          <option key={p.id} value={p.url}>{p.filename}</option>
         ))}
       </select>
     </label>

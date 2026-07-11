@@ -111,9 +111,9 @@ export interface UIContent {
 
 export interface PhotoEntry {
   id: string;
-  data: string; // desktop base64
+  url: string;
   filename: string;
-  mobileData?: string; // mobile base64 (optional)
+  mobileUrl?: string;
   mobileFilename?: string;
 }
 
