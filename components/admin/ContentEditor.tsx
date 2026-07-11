@@ -162,6 +162,67 @@ export default function ContentEditor() {
                 />
                 <button onClick={() => updateField(['about', 'experience'], [...content.about.experience, ''])}
                   className="text-link border border-(--color-text-muted)/30 px-[16px] py-[8px] hover:border-(--color-text)">+ Пункт</button>
+
+                <SectionTitle label="Блоки страницы (приоритет)" />
+                <p className="text-[12px] text-(--color-text-muted)">Если блоки заполнены — страница рендерится из них. Иначе используется старая структура выше.</p>
+                <ReorderList
+                  items={content.about.blocks.map((b, i) => ({ key: String(i), label: `${b.type}: ${b.type === 'intro' ? b.title : b.type === 'list' ? b.title : b.type === 'services' ? b.items.length + ' услуг' : b.type === 'html' ? 'HTML ' + b.html.slice(0, 40) : b.type}` }))}
+                  onMove={(f, t) => moveItem(['about', 'blocks'], f, t)}
+                  onRemove={(i) => removeItem(['about', 'blocks'], i)}
+                />
+                <div className="flex flex-wrap gap-[8px]">
+                  <button onClick={() => updateField(['about', 'blocks'], [...content.about.blocks, { type: 'intro', title: '', subtitle: '' }])}
+                    className="text-link border px-[8px] py-[4px] text-[14px]">+ Интро</button>
+                  <button onClick={() => updateField(['about', 'blocks'], [...content.about.blocks, { type: 'services', items: [] }])}
+                    className="text-link border px-[8px] py-[4px] text-[14px]">+ Услуги</button>
+                  <button onClick={() => updateField(['about', 'blocks'], [...content.about.blocks, { type: 'list', title: '', items: [] }])}
+                    className="text-link border px-[8px] py-[4px] text-[14px]">+ Список</button>
+                  <button onClick={() => updateField(['about', 'blocks'], [...content.about.blocks, { type: 'html', html: '' }])}
+                    className="text-link border px-[8px] py-[4px] text-[14px]">+ HTML</button>
+                  <button onClick={() => updateField(['about', 'blocks'], [...content.about.blocks, { type: 'contact', phone: '', email: '' }])}
+                    className="text-link border px-[8px] py-[4px] text-[14px]">+ Контакты</button>
+                  <button onClick={() => updateField(['about', 'blocks'], [...content.about.blocks, { type: 'divider' }])}
+                    className="text-link border px-[8px] py-[4px] text-[14px]">+ Разделитель</button>
+                </div>
+                {content.about.blocks.map((block, bi) => (
+                  <details key={bi} className="border border-(--color-text-muted)/10 p-[8px]">
+                    <summary className="text-[14px] cursor-pointer">{block.type} #{bi + 1}</summary>
+                    <div className="mt-[8px] flex flex-col gap-[8px]">
+                      {block.type === 'intro' && (<>
+                        <Field label="Заголовок" value={block.title} onChange={(v) => updateField(['about', 'blocks', bi, 'title'], v)} />
+                        <Field label="Подзаголовок" value={block.subtitle} onChange={(v) => updateField(['about', 'blocks', bi, 'subtitle'], v)} textarea />
+                      </>)}
+                      {block.type === 'services' && (<>
+                        {block.items.map((s, si) => (
+                          <div key={si} className="border p-[8px]">
+                            <Field label="Название" value={s.title} onChange={(v) => updateField(['about', 'blocks', bi, 'items', si, 'title'], v)} />
+                            <Field label="Описание" value={s.description} onChange={(v) => updateField(['about', 'blocks', bi, 'items', si, 'description'], v)} textarea />
+                            <OrderButtons i={si} total={block.items.length} onMove={(d) => moveItem(['about', 'blocks', bi, 'items'], si, si + d)} onRemove={() => removeItem(['about', 'blocks', bi, 'items'], si)} />
+                          </div>
+                        ))}
+                        <button onClick={() => updateField(['about', 'blocks', bi, 'items'], [...block.items, { title: '', description: '' }])}
+                          className="text-link text-[14px] border px-[8px] py-[4px]">+ Услуга</button>
+                      </>)}
+                      {block.type === 'list' && (<>
+                        <Field label="Заголовок" value={block.title} onChange={(v) => updateField(['about', 'blocks', bi, 'title'], v)} />
+                        <ReorderList
+                          items={block.items.map((t, li) => ({ key: String(li), label: t }))}
+                          onMove={(f, t) => moveItem(['about', 'blocks', bi, 'items'], f, t)}
+                          onRemove={(i) => removeItem(['about', 'blocks', bi, 'items'], i)}
+                        />
+                        <button onClick={() => updateField(['about', 'blocks', bi, 'items'], [...block.items, ''])}
+                          className="text-link text-[14px] border px-[8px] py-[4px]">+ Пункт</button>
+                      </>)}
+                      {block.type === 'html' && (
+                        <Field label="HTML" value={block.html} onChange={(v) => updateField(['about', 'blocks', bi, 'html'], v)} textarea />
+                      )}
+                      {block.type === 'contact' && (<>
+                        <Field label="Телефон" value={block.phone} onChange={(v) => updateField(['about', 'blocks', bi, 'phone'], v)} />
+                        <Field label="Email" value={block.email} onChange={(v) => updateField(['about', 'blocks', bi, 'email'], v)} />
+                      </>)}
+                    </div>
+                  </details>
+                ))}
               </>
             )}
 

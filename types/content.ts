@@ -43,6 +43,14 @@ export interface ProjectContent {
   liveUrl: string;
 }
 
+export type AboutBlock =
+  | { type: 'intro'; title: string; subtitle: string }
+  | { type: 'services'; items: { title: string; description: string }[] }
+  | { type: 'list'; title: string; items: string[] }
+  | { type: 'html'; html: string }
+  | { type: 'contact'; phone: string; email: string }
+  | { type: 'divider' };
+
 export interface AboutContent {
   photo: string;
   name: string;
@@ -51,6 +59,7 @@ export interface AboutContent {
   services: { title: string; description: string }[];
   experience: string[];
   education: string[];
+  blocks: AboutBlock[];
   contact: {
     phone: string;
     email: string;

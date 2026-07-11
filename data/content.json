@@ -59,7 +59,8 @@
     "contact": {
       "phone": "+7 903 650 65 99",
       "email": ""
-    }
+    },
+    "blocks": []
   },
   "projects": {
     "faculty-amm": {
