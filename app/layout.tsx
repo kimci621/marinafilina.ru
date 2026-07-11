@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import LenisProvider from "@/components/LenisProvider";
+import PageTransition from "@/components/PageTransition";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -16,7 +17,9 @@ export default function RootLayout({
     <html lang="ru" className="h-full antialiased">
       <body className="min-h-full bg-(--color-background) text-(--color-text) font-sans">
         <LenisProvider>
-          {children}
+          <PageTransition>
+            {children}
+          </PageTransition>
         </LenisProvider>
       </body>
     </html>
