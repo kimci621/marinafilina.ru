@@ -7,8 +7,6 @@ const DEFAULT_PATH = join(process.cwd(), 'data', 'content.default.json');
 const RUNTIME_PATH = join(process.cwd(), 'data', 'content.json');
 const BLOB_PATH = 'content.json';
 
-let cachedContent: SiteContent | null = null;
-
 async function fileExists(path: string): Promise<boolean> {
   try { await access(path); return true; } catch { return false; }
 }
@@ -22,8 +20,8 @@ async function loadFromBlob(): Promise<SiteContent | null> {
   if (!process.env.BLOB_READ_WRITE_TOKEN) return null;
   try {
     const result = await get(BLOB_PATH, { access: 'private' });
-    if (!result || !result.blob) return null;
-    const res = await fetch(result.blob.url);
+    if (!result?.blob?.url) return null;
+    const res = await fetch(result.blob.url, { cache: 'no-store' });
     const raw = await res.text();
     return JSON.parse(raw) as SiteContent;
   } catch {
@@ -42,32 +40,26 @@ async function saveToBlob(content: SiteContent): Promise<boolean> {
 }
 
 export async function getContent(): Promise<SiteContent> {
-  if (cachedContent) return cachedContent;
+  // Always read fresh — no cache (prevents stale data across Vercel instances)
 
-  // 1. Try Blob (production persistence)
+  // 1. Try Blob (production — always fresh)
   const blobContent = await loadFromBlob();
-  if (blobContent) {
-    cachedContent = blobContent;
-    return cachedContent;
-  }
+  if (blobContent) return blobContent;
 
   // 2. Try runtime file (local dev)
   if (await fileExists(RUNTIME_PATH)) {
-    cachedContent = await loadFromFile(RUNTIME_PATH);
-    return cachedContent;
+    return loadFromFile(RUNTIME_PATH);
   }
 
   // 3. Fallback to factory defaults
   if (await fileExists(DEFAULT_PATH)) {
-    cachedContent = await loadFromFile(DEFAULT_PATH);
-    return cachedContent;
+    return loadFromFile(DEFAULT_PATH);
   }
 
   throw new Error('No content file found');
 }
 
 export async function updateContent(content: SiteContent): Promise<void> {
-  cachedContent = content;
   await saveToBlob(content);
   try { await writeFile(RUNTIME_PATH, JSON.stringify(content, null, 2), 'utf-8'); } catch {}
 }
