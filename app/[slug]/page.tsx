@@ -7,7 +7,7 @@ import Footer from '@/components/Footer';
 import ArrowIcon from '@/components/ArrowIcon';
 import ProjectBlocks from '@/components/ProjectBlocks';
 import { PhotosProvider } from '@/components/PhotosContext';
-import Image from 'next/image';
+import ResponsiveImage from '@/components/ResponsiveImage';
 
 export const dynamic = 'force-dynamic';
 
