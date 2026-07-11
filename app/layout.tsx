@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
+import { Analytics } from "@vercel/analytics/next";
 import LenisProvider from "@/components/LenisProvider";
 import PageTransition from "@/components/PageTransition";
 import "./globals.css";
@@ -21,6 +23,8 @@ export default function RootLayout({
             {children}
           </PageTransition>
         </LenisProvider>
+        <SpeedInsights />
+        <Analytics />
       </body>
     </html>
   );
