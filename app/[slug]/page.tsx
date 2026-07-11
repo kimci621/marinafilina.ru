@@ -8,6 +8,8 @@ import ArrowIcon from '@/components/ArrowIcon';
 import ProjectBlocks from '@/components/ProjectBlocks';
 import Image from 'next/image';
 
+export const dynamic = 'force-dynamic';
+
 interface ProjectPageProps {
   params: Promise<{ slug: string }>;
 }

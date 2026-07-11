@@ -2,6 +2,8 @@ import { getContent } from '@/lib/content';
 import Link from 'next/link';
 import ArrowIcon from '@/components/ArrowIcon';
 
+export const dynamic = 'force-dynamic';
+
 export default async function NotFound() {
   const content = await getContent();
   const ui = content.ui.notFound;

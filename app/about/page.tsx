@@ -5,6 +5,8 @@ import NavMobile from '@/components/NavMobile';
 import Footer from '@/components/Footer';
 import AboutBlocks from '@/components/AboutBlocks';
 
+export const dynamic = 'force-dynamic';
+
 export async function generateMetadata(): Promise<Metadata> {
   const content = await getContent();
   return {

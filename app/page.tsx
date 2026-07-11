@@ -6,6 +6,8 @@ import ProjectCard from '@/components/ProjectCard';
 import CTASection from '@/components/CTASection';
 import Footer from '@/components/Footer';
 
+export const dynamic = 'force-dynamic';
+
 export default async function HomePage() {
   const content = await getContent();
   const { nav, home, footer, ui } = content;
