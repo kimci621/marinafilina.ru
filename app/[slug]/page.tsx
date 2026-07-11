@@ -4,6 +4,7 @@ import { getContent, getProject, getProjectSlugs } from '@/lib/content';
 import Nav from '@/components/Nav';
 import NavMobile from '@/components/NavMobile';
 import Footer from '@/components/Footer';
+import ProjectBlocks from '@/components/ProjectBlocks';
 import Image from 'next/image';
 
 interface ProjectPageProps {
@@ -51,17 +52,19 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
           <span className="text-label text-(--color-text-muted)">{project.category}</span>
         </section>
 
-        {project.images.length > 0 && (
+        {project.blocks && project.blocks.length > 0 ? (
+          <ProjectBlocks blocks={project.blocks} />
+        ) : project.images.length > 0 ? (
           <section className="content-container py-[40px]">
             <div className="grid grid-cols-1 tablet:grid-cols-2 desktop:grid-cols-3 gap-[16px]">
               {project.images.map((src, i) => (
                 <div key={i} className="relative aspect-square">
-                  <Image src={src} alt={`${project.title} ${i + 1}`} fill className="object-cover" sizes="(max-width: 799px) 345px, (max-width: 1279px) 375px, 410px" />
+                  <Image src={src} alt={`${project.title} ${i + 1}`} fill className="object-cover" sizes="(max-width: 799px) 345px, (max-width: 1279px) 375px, 410px" unoptimized />
                 </div>
               ))}
             </div>
           </section>
-        )}
+        ) : null}
 
         <section className="content-container py-[40px]">
           <div className="flex flex-col tablet:flex-row tablet:justify-between">

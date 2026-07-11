@@ -5,7 +5,7 @@ import AdminLayout from '@/components/admin/AdminLayout';
 import type { SiteContent, ProjectContent } from '@/types/content';
 
 const EMPTY_PROJECT: ProjectContent = {
-  title: '', subtitle: '', description: '', images: [], category: '',
+  title: '', subtitle: '', description: '', images: [], blocks: [], category: '',
   client: '', task: '', concept: '', services: [], timeline: '', liveUrl: '',
 };
 
@@ -74,6 +74,23 @@ export default function ContentEditor() {
     const nc = structuredClone(content);
     delete nc.projects[slug];
     nc.home.projects = nc.home.projects.filter((s) => s !== slug);
+    setContent(nc);
+  };
+
+  const addPhoto = async (file: File) => {
+    if (!content) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      const id = 'photo-' + Date.now();
+      updateField(['photos', id], { id, data: reader.result as string, filename: file.name });
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const removePhoto = (id: string) => {
+    if (!content) return;
+    const nc = structuredClone(content);
+    delete nc.photos[id];
     setContent(nc);
   };
 
@@ -165,13 +182,40 @@ export default function ContentEditor() {
                         setContent(nc);
                       }} />
                       <Field label="Название" value={project.title} onChange={(v) => updateField(['projects', slug, 'title'], v)} />
-                      <Field label="Подзаголовок" value={project.subtitle} onChange={(v) => updateField(['projects', slug, 'subtitle'], v)} />
                       <Field label="Клиент" value={project.client} onChange={(v) => updateField(['projects', slug, 'client'], v)} />
-                      <Field label="Категория" value={project.category} onChange={(v) => updateField(['projects', slug, 'category'], v)} />
                       <Field label="Описание" value={project.description} onChange={(v) => updateField(['projects', slug, 'description'], v)} textarea />
                       <Field label="Задача" value={project.task} onChange={(v) => updateField(['projects', slug, 'task'], v)} textarea />
                       <Field label="Концепт" value={project.concept} onChange={(v) => updateField(['projects', slug, 'concept'], v)} textarea />
-                      <Field label="Таймлайн" value={project.timeline} onChange={(v) => updateField(['projects', slug, 'timeline'], v)} />
+
+                      <SectionTitle label="Блоки страницы" />
+                      <ReorderList
+                        items={project.blocks.map((b, i) => ({ key: String(i), label: b.type === 'wide' ? `[Широкое] ${b.image?.slice(0,40)}...` : `[Сплит] L:${b.imageLeft?.slice(0,20)}... R:${b.imageRight?.slice(0,20)}...` }))}
+                        onMove={(f, t) => moveItem(['projects', slug, 'blocks'], f, t)}
+                        onRemove={(i) => removeItem(['projects', slug, 'blocks'], i)}
+                      />
+                      <div className="flex gap-[8px]">
+                        <button onClick={() => updateField(['projects', slug, 'blocks'], [...project.blocks, { type: 'wide', image: '', height: 600 }])}
+                          className="text-link border px-[8px] py-[4px] text-[14px]">+ Широкое фото</button>
+                        <button onClick={() => updateField(['projects', slug, 'blocks'], [...project.blocks, { type: 'split', imageLeft: '', imageRight: '', height: 800 }])}
+                          className="text-link border px-[8px] py-[4px] text-[14px]">+ Сплит (2 фото)</button>
+                      </div>
+                      {project.blocks.map((block, bi) => (
+                        <details key={bi} className="border border-(--color-text-muted)/10 p-[8px]">
+                          <summary className="text-[14px] cursor-pointer">{block.type === 'wide' ? 'Широкое фото' : 'Сплит (2 фото)'} #{bi + 1}</summary>
+                          <div className="mt-[8px] flex flex-col gap-[8px]">
+                            <Field label="Высота (px)" value={String(block.height)} onChange={(v) => updateField(['projects', slug, 'blocks', bi, 'height'], Number(v) || 600)} />
+                            {block.type === 'wide' ? (
+                              <PhotoSelect label="Фото" value={block.image} photos={Object.values(content.photos)} onChange={(v) => updateField(['projects', slug, 'blocks', bi, 'image'], v)} />
+                            ) : (
+                              <>
+                                <PhotoSelect label="Левое фото" value={block.imageLeft} photos={Object.values(content.photos)} onChange={(v) => updateField(['projects', slug, 'blocks', bi, 'imageLeft'], v)} />
+                                <PhotoSelect label="Правое фото" value={block.imageRight} photos={Object.values(content.photos)} onChange={(v) => updateField(['projects', slug, 'blocks', bi, 'imageRight'], v)} />
+                              </>
+                            )}
+                          </div>
+                        </details>
+                      ))}
+
                       <div className="border-t border-(--color-text-muted)/20 pt-[12px] flex gap-[8px]">
                         <button onClick={() => removeProject(slug)}
                           className="text-link text-red-600 hover:opacity-70">Удалить проект</button>
@@ -179,6 +223,28 @@ export default function ContentEditor() {
                     </div>
                   </details>
                 ))}
+              </div>
+            )}
+
+            {tab === 'photos' && (
+              <div className="flex flex-col gap-[20px]">
+                <label className="flex flex-col gap-[8px]">
+                  <span className="text-label text-(--color-text-muted)">Загрузить фото (base64 в JSON)</span>
+                  <input type="file" accept="image/*" onChange={(e) => { const f = e.target.files?.[0]; if (f) addPhoto(f); }}
+                    className="text-body" />
+                </label>
+                <SectionTitle label={`Галерея (${Object.keys(content.photos).length} фото)`} />
+                <div className="grid grid-cols-3 gap-[12px]">
+                  {Object.values(content.photos).map((photo) => (
+                    <div key={photo.id} className="relative border border-(--color-text-muted)/20 group">
+                      <img src={photo.data} alt={photo.filename} className="w-full h-[120px] object-cover" />
+                      <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white text-[10px] p-[4px] truncate">{photo.filename}</div>
+                      <button onClick={() => removePhoto(photo.id)}
+                        className="absolute top-[4px] right-[4px] w-[20px] h-[20px] bg-red-600 text-white rounded-full text-[12px] opacity-0 group-hover:opacity-100 flex items-center justify-center">×</button>
+                    </div>
+                  ))}
+                </div>
+                {Object.keys(content.photos).length === 0 && <p className="text-body text-(--color-text-muted)">Нет загруженных фото</p>}
               </div>
             )}
 
@@ -281,6 +347,23 @@ function Field({ label, value, onChange, textarea }: { label: string; value: str
 
 function SectionTitle({ label }: { label: string }) {
   return <h3 className="text-h4 pt-[20px] border-t border-(--color-text-muted)/20">{label}</h3>;
+}
+
+function PhotoSelect({ label, value, photos, onChange }: { label: string; value: string; photos: { id: string; data: string; filename: string }[]; onChange: (v: string) => void }) {
+  const selected = photos.find((p) => p.data === value);
+  return (
+    <label className="flex flex-col gap-[8px]">
+      <span className="text-label text-(--color-text-muted)">{label}</span>
+      {selected && <img src={selected.data} alt={selected.filename} className="w-[80px] h-[60px] object-cover border" />}
+      <select value={value} onChange={(e) => onChange(e.target.value)}
+        className="w-full px-[12px] py-[10px] border border-(--color-text-muted)/30 text-body bg-(--color-surface) focus:outline-none focus:border-(--color-text)">
+        <option value="">— Выбрать —</option>
+        {photos.map((p) => (
+          <option key={p.id} value={p.data}>{p.filename}</option>
+        ))}
+      </select>
+    </label>
+  );
 }
 
 function OrderButtons({ i, total, onMove, onRemove }: { i: number; total: number; onMove: (d: number) => void; onRemove: () => void }) {

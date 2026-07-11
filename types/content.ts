@@ -13,11 +13,27 @@ export interface HeroContent {
   subtitle: string;
 }
 
+export type ImageBlock = {
+  type: 'wide';
+  image: string;
+  height: number;
+};
+
+export type SplitBlock = {
+  type: 'split';
+  imageLeft: string;
+  imageRight: string;
+  height: number;
+};
+
+export type ProjectBlock = ImageBlock | SplitBlock;
+
 export interface ProjectContent {
   title: string;
   subtitle: string;
   description: string;
   images: string[];
+  blocks: ProjectBlock[];
   category: string;
   client: string;
   task: string;
@@ -84,6 +100,12 @@ export interface UIContent {
   };
 }
 
+export interface PhotoEntry {
+  id: string;
+  data: string; // base64
+  filename: string;
+}
+
 export interface SiteContent {
   nav: {
     logo: string;
@@ -99,4 +121,5 @@ export interface SiteContent {
   footer: FooterContent;
   seo: Record<string, SEOContent>;
   ui: UIContent;
+  photos: Record<string, PhotoEntry>;
 }
