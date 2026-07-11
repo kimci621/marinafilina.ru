@@ -31,34 +31,106 @@ function unflatten(flat: Record<string, any>): any {
   return result;
 }
 
-export async function getContent(): Promise<SiteContent> {
+// Fetch only fields matching given prefixes (atomic, fast)
+async function getFields(prefixes: string[]): Promise<Record<string, any>> {
+  const client = getClient();
+  if (!client) throw new Error('No client');
+
+  // Build OR query: path LIKE 'nav.%' OR path LIKE 'home.%' ...
+  let query = client.from(TABLE).select('path, value');
+  for (const prefix of prefixes) {
+    query = query.or(`path.like.${prefix}.%`);
+  }
+
+  const { data, error } = await query;
+  if (error || !data) throw error;
+
+  const flat: Record<string, any> = {};
+  for (const row of data) {
+    flat[row.path] = row.value;
+  }
+  return flat;
+}
+
+// Fetch a single field atomically
+export async function getField(path: string[]): Promise<any> {
   try {
     const client = getClient();
     if (!client) throw new Error('No client');
-
-    const { data, error } = await client.from(TABLE).select('path, value');
+    const key = path.join('.');
+    const { data, error } = await client.from(TABLE).select('value').eq('path', key).single();
     if (error || !data) throw error;
+    return data.value;
+  } catch {
+    // Fallback to default content
+    let current: any = defaultContent;
+    for (const key of path) current = current?.[key];
+    return current;
+  }
+}
 
-    const flat: Record<string, any> = {};
-    for (const row of data) {
-      flat[row.path] = row.value;
-    }
-
+// Full content (admin only)
+export async function getContent(): Promise<SiteContent> {
+  try {
+    const flat = await getFields(['']);
     if (Object.keys(flat).length > 0) {
       return unflatten(flat) as SiteContent;
     }
-  } catch {
-    // Supabase unavailable — fallback
-  }
-
+  } catch {}
   return defaultContent as unknown as SiteContent;
 }
 
+// Home page: only nav, home, footer, ui, photos
+export async function getHomeContent() {
+  try {
+    const flat = await getFields(['nav', 'home', 'footer', 'ui', 'photos', 'projects']);
+    const full = unflatten(flat);
+    return {
+      nav: full.nav,
+      home: full.home,
+      footer: full.footer,
+      ui: full.ui,
+      photos: full.photos || {},
+      projects: full.projects || {},
+    };
+  } catch {
+    return {
+      nav: (defaultContent as any).nav,
+      home: (defaultContent as any).home,
+      footer: (defaultContent as any).footer,
+      ui: (defaultContent as any).ui,
+      photos: {},
+      projects: (defaultContent as any).projects || {},
+    };
+  }
+}
+
+// About page: only nav, about, footer, ui
+export async function getAboutContent() {
+  try {
+    const flat = await getFields(['nav', 'about', 'footer', 'ui', 'photos']);
+    const full = unflatten(flat);
+    return {
+      nav: full.nav,
+      about: full.about,
+      footer: full.footer,
+      ui: full.ui,
+      photos: full.photos || {},
+    };
+  } catch {
+    return {
+      nav: (defaultContent as any).nav,
+      about: (defaultContent as any).about,
+      footer: (defaultContent as any).footer,
+      ui: (defaultContent as any).ui,
+      photos: {},
+    };
+  }
+}
+
 export async function updateContent(content: SiteContent): Promise<void> {
-  // Full save (used by seed and PUT)
   const client = getClient();
   if (!client) return;
-
   const flat = flatten(content);
   const rows = Object.entries(flat).map(([path, value]) => ({ path, value }));
   await client.from(TABLE).upsert(rows);
@@ -67,17 +139,20 @@ export async function updateContent(content: SiteContent): Promise<void> {
 export async function patchField(path: string[], value: any): Promise<void> {
   const client = getClient();
   if (!client) return;
-
-  const key = path.join('.');
-  await client.from(TABLE).upsert({ path: key, value, updated_at: new Date().toISOString() });
+  await client.from(TABLE).upsert({
+    path: path.join('.'),
+    value,
+    updated_at: new Date().toISOString(),
+  });
 }
 
 export async function getProjectSlugs(): Promise<string[]> {
-  const content = await getContent();
-  return content.home.projects;
+  const home = await getField(['home']);
+  return home?.projects || [];
 }
 
-export async function getProject(slug: string): Promise<SiteContent['projects'][string] | null> {
-  const content = await getContent();
-  return content.projects[slug] || null;
+export async function getProject(slug: string): Promise<any> {
+  const project = await getField(['projects', slug]);
+  if (project) return project;
+  return (defaultContent as any).projects?.[slug] || null;
 }

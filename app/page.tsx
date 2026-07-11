@@ -1,4 +1,4 @@
-import { getContent } from '@/lib/content';
+import { getHomeContent } from '@/lib/content';
 import Nav from '@/components/Nav';
 import NavMobile from '@/components/NavMobile';
 import Hero from '@/components/Hero';
@@ -10,11 +10,11 @@ import { PhotosProvider } from '@/components/PhotosContext';
 export const dynamic = 'force-dynamic';
 
 export default async function HomePage() {
-  const content = await getContent();
-  const { nav, home, footer, ui } = content;
+  const content = await getHomeContent();
+  const { nav, home, footer, ui, projects, photos } = content;
 
   return (
-    <PhotosProvider photos={content.photos || {}}>
+    <PhotosProvider photos={photos || {}}>
       <Nav logo={nav.logo} links={nav.links} />
       <NavMobile logo={nav.logo} links={nav.links} ui={ui.nav} />
 
@@ -23,7 +23,7 @@ export default async function HomePage() {
 
         <section id="work">
           {home.projects.map((slug) => {
-            const project = content.projects[slug];
+            const project = projects[slug];
             if (!project) return null;
             return (
               <ProjectCard

@@ -16,15 +16,16 @@ export default function ResponsiveImage({ src, alt, className = '', fill, sizes,
   const { src: desktopSrc, mobileSrc } = getPhotoVariants(src, photos);
 
   const imgClass = fill ? `absolute inset-0 w-full h-full object-cover ${className}` : className;
+  const imgProps = { loading: 'lazy' as const, decoding: 'async' as const };
 
   if (!mobileSrc) {
-    return <img src={desktopSrc} alt={alt} className={imgClass} sizes={sizes} style={style} />;
+    return <img src={desktopSrc} alt={alt} className={imgClass} sizes={sizes} style={style} {...imgProps} />;
   }
 
   return (
     <picture className={fill ? 'absolute inset-0 block' : 'block'}>
       <source media="(max-width: 799px)" srcSet={mobileSrc} />
-      <img src={desktopSrc} alt={alt} className={imgClass} sizes={sizes} style={style} />
+      <img src={desktopSrc} alt={alt} className={imgClass} sizes={sizes} style={style} {...imgProps} />
     </picture>
   );
 }
