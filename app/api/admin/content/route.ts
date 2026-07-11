@@ -20,7 +20,10 @@ export async function PUT(request: NextRequest) {
 
     await updateContent(body);
     return NextResponse.json({ success: true });
-  } catch {
+  } catch (err: any) {
+    if (err?.code === 'EROFS') {
+      return NextResponse.json({ error: 'Сохранение недоступно в production. Редактируйте локально и делайте deploy.' }, { status: 503 });
+    }
     return NextResponse.json({ error: 'Failed to save content' }, { status: 500 });
   }
 }

@@ -1,42 +1,21 @@
+import { readFile, writeFile } from 'fs/promises';
+import { join } from 'path';
 import type { SiteContent } from '@/types/content';
 import defaultContent from '@/data/content.json';
 
-let kvGet: ((key: string) => Promise<SiteContent | null>) | null = null;
-let kvSet: ((key: string, value: SiteContent) => Promise<unknown>) | null = null;
-
-// Lazy-load KV to avoid errors when not configured
-async function getKV() {
-  if (!kvGet) {
-    try {
-      const { kv } = await import('@vercel/kv');
-      kvGet = async (key: string) => kv.get<SiteContent>(key);
-      kvSet = async (key: string, value: SiteContent) => kv.set(key, value);
-    } catch {
-      kvGet = async () => null;
-      kvSet = async () => {};
-    }
-  }
-  return { get: kvGet!, set: kvSet! };
-}
-
-const CONTENT_KEY = 'site:content';
+const CONTENT_PATH = join(process.cwd(), 'data', 'content.json');
 
 export async function getContent(): Promise<SiteContent> {
   try {
-    const { get } = await getKV();
-    const stored = await get(CONTENT_KEY);
-    if (stored?.nav && stored?.home) {
-      return stored;
-    }
+    const raw = await readFile(CONTENT_PATH, 'utf-8');
+    return JSON.parse(raw);
   } catch {
-    // KV unavailable, use default
+    return defaultContent as unknown as SiteContent;
   }
-  return defaultContent as unknown as SiteContent;
 }
 
 export async function updateContent(content: SiteContent): Promise<void> {
-  const { set } = await getKV();
-  await set(CONTENT_KEY, content);
+  await writeFile(CONTENT_PATH, JSON.stringify(content, null, 2), 'utf-8');
 }
 
 export async function getProjectSlugs(): Promise<string[]> {
