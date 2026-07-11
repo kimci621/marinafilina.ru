@@ -151,7 +151,7 @@ export async function getProjectSlugs(): Promise<string[]> {
   return home?.projects || [];
 }
 
-export async function getProject(slug: string): Promise<any> {
+export async function getProject(slug: string): Promise<SiteContent['projects'][string] | null> {
   const project = await getField(['projects', slug]);
   if (project) return project;
   return (defaultContent as any).projects?.[slug] || null;
