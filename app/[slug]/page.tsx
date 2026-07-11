@@ -61,7 +61,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
         ) : project.images.length > 0 ? (
           <section className="content-container py-[40px]">
             <div className="grid grid-cols-1 tablet:grid-cols-2 desktop:grid-cols-3 gap-[16px]">
-              {project.images.map((src, i) => (
+              {project.images.map((src: string, i: number) => (
                 <div key={i} className="relative aspect-square">
                   <ResponsiveImage src={src} alt={`${project.title} ${i + 1}`} fill sizes="(max-width: 799px) 345px, (max-width: 1279px) 375px, 410px" />
                 </div>
