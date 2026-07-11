@@ -4,6 +4,7 @@ import Nav from '@/components/Nav';
 import NavMobile from '@/components/NavMobile';
 import Footer from '@/components/Footer';
 import AboutBlocks from '@/components/AboutBlocks';
+import { PhotosProvider } from '@/components/PhotosContext';
 
 export const dynamic = 'force-dynamic';
 
@@ -20,7 +21,7 @@ export default async function AboutPage() {
   const { nav, about, footer, ui } = content;
 
   return (
-    <>
+    <PhotosProvider photos={content.photos || {}}>
       <Nav logo={nav.logo} links={nav.links} />
       <NavMobile logo={nav.logo} links={nav.links} ui={ui.nav} />
 
