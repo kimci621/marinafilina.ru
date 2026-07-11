@@ -8,7 +8,6 @@ export default function LenisProvider({ children }: { children: React.ReactNode 
   const lenisRef = useRef<Lenis | null>(null);
   const pathname = usePathname();
 
-  // Initialize Lenis once
   useEffect(() => {
     const lenis = new Lenis({
       duration: 1.2,
@@ -24,26 +23,24 @@ export default function LenisProvider({ children }: { children: React.ReactNode 
     };
     requestAnimationFrame(raf);
 
+    // Auto-resize when DOM height changes (expand/collapse, dynamic content)
+    const observer = new ResizeObserver(() => {
+      lenis.resize();
+    });
+    observer.observe(document.body);
+
     return () => {
+      observer.disconnect();
       lenis.destroy();
     };
   }, []);
 
-  // On route change: reset scroll position and recalculate
+  // Reset scroll position on route change
   useEffect(() => {
     const lenis = lenisRef.current;
     if (!lenis) return;
-
-    // Reset scroll to top
     lenis.scrollTo(0, { immediate: true });
-
-    // Force Lenis to recalculate after AnimatePresence finishes
-    // AnimatePresence mode="wait" takes ~550ms (enter 500ms)
-    const timer = setTimeout(() => {
-      lenis.resize();
-    }, 600);
-
-    return () => clearTimeout(timer);
+    setTimeout(() => lenis.resize(), 100);
   }, [pathname]);
 
   return <>{children}</>;
