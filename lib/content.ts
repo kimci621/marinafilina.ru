@@ -1,13 +1,12 @@
 import { readFile, writeFile, access } from 'fs/promises';
 import { join } from 'path';
-import { put, head, del } from '@vercel/blob';
+import { put, get } from '@vercel/blob';
 import type { SiteContent } from '@/types/content';
 
 const DEFAULT_PATH = join(process.cwd(), 'data', 'content.default.json');
 const RUNTIME_PATH = join(process.cwd(), 'data', 'content.json');
 const BLOB_PATH = 'content.json';
 
-// In-memory cache: instant reads for warm instances
 let cachedContent: SiteContent | null = null;
 
 async function fileExists(path: string): Promise<boolean> {
@@ -22,10 +21,9 @@ async function loadFromFile(path: string): Promise<SiteContent> {
 async function loadFromBlob(): Promise<SiteContent | null> {
   if (!process.env.BLOB_READ_WRITE_TOKEN) return null;
   try {
-    const blob = await head(BLOB_PATH);
+    const blob = await get(BLOB_PATH, { access: 'private' });
     if (!blob) return null;
-    const res = await fetch(blob.url);
-    const raw = await res.text();
+    const raw = await blob.text();
     return JSON.parse(raw) as SiteContent;
   } catch {
     return null;
@@ -35,12 +33,7 @@ async function loadFromBlob(): Promise<SiteContent | null> {
 async function saveToBlob(content: SiteContent): Promise<boolean> {
   if (!process.env.BLOB_READ_WRITE_TOKEN) return false;
   try {
-    // Delete old blob first, then upload new one
-    try { await del(BLOB_PATH); } catch {}
-    await put(BLOB_PATH, JSON.stringify(content, null, 2), {
-      access: 'public',
-      contentType: 'application/json',
-    });
+    await put(BLOB_PATH, JSON.stringify(content, null, 2), { access: 'private' });
     return true;
   } catch {
     return false;
@@ -54,8 +47,6 @@ export async function getContent(): Promise<SiteContent> {
   const blobContent = await loadFromBlob();
   if (blobContent) {
     cachedContent = blobContent;
-    // Also sync to local file for dev convenience
-    try { await writeFile(RUNTIME_PATH, JSON.stringify(blobContent, null, 2), 'utf-8'); } catch {}
     return cachedContent;
   }
 
@@ -68,7 +59,6 @@ export async function getContent(): Promise<SiteContent> {
   // 3. Fallback to factory defaults
   if (await fileExists(DEFAULT_PATH)) {
     cachedContent = await loadFromFile(DEFAULT_PATH);
-    try { await writeFile(RUNTIME_PATH, JSON.stringify(cachedContent, null, 2), 'utf-8'); } catch {}
     return cachedContent;
   }
 
@@ -77,14 +67,8 @@ export async function getContent(): Promise<SiteContent> {
 
 export async function updateContent(content: SiteContent): Promise<void> {
   cachedContent = content;
-
-  // Primary: save to Blob (production)
-  const saved = await saveToBlob(content);
-
-  // Fallback: save to local file (dev, or if Blob unavailable)
-  try {
-    await writeFile(RUNTIME_PATH, JSON.stringify(content, null, 2), 'utf-8');
-  } catch {}
+  await saveToBlob(content);
+  try { await writeFile(RUNTIME_PATH, JSON.stringify(content, null, 2), 'utf-8'); } catch {}
 }
 
 export async function getProjectSlugs(): Promise<string[]> {
