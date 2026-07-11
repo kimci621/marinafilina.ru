@@ -21,9 +21,10 @@ async function loadFromFile(path: string): Promise<SiteContent> {
 async function loadFromBlob(): Promise<SiteContent | null> {
   if (!process.env.BLOB_READ_WRITE_TOKEN) return null;
   try {
-    const blob = await get(BLOB_PATH, { access: 'private' });
-    if (!blob) return null;
-    const raw = await blob.text();
+    const result = await get(BLOB_PATH, { access: 'private' });
+    if (!result || !result.blob) return null;
+    const res = await fetch(result.blob.url);
+    const raw = await res.text();
     return JSON.parse(raw) as SiteContent;
   } catch {
     return null;
