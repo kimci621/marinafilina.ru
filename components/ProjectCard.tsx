@@ -4,6 +4,7 @@ import { useRef } from 'react';
 import Link from 'next/link';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import ImageSlider from './ImageSlider';
+import ArrowIcon from './ArrowIcon';
 import type { UIContent } from '@/types/content';
 
 interface ProjectCardProps {
@@ -58,12 +59,8 @@ export default function ProjectCard({ title, subtitle, images, description, slug
             className="group inline-flex items-center gap-[4px] text-link text-(--color-text-muted) hover:text-(--color-text) transition-colors"
           >
             {ui.linkText}
-            <motion.span
-              className="inline-block"
-              whileHover={{ x: 4 }}
-              transition={{ duration: 0.2 }}
-            >
-              {ui.linkArrow}
+            <motion.span className="inline-flex" whileHover={{ x: 4 }} transition={{ duration: 0.2 }}>
+              <ArrowIcon className="text-(--color-text-muted) group-hover:text-(--color-text) transition-colors" />
             </motion.span>
           </Link>
         </div>

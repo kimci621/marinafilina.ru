@@ -4,6 +4,7 @@ import { getContent, getProject, getProjectSlugs } from '@/lib/content';
 import Nav from '@/components/Nav';
 import NavMobile from '@/components/NavMobile';
 import Footer from '@/components/Footer';
+import ArrowIcon from '@/components/ArrowIcon';
 import ProjectBlocks from '@/components/ProjectBlocks';
 import Image from 'next/image';
 
@@ -104,10 +105,14 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
           <div className="divider mb-[30px]" />
           <div className="flex justify-between text-link text-(--color-text-muted)">
             {prevSlug ? (
-              <a href={`/${prevSlug}`} className="hover:text-(--color-text) transition-colors">{ui.project.prevProject}</a>
+              <a href={`/${prevSlug}`} className="flex items-center gap-[4px] hover:text-(--color-text) transition-colors">
+                <ArrowIcon direction="left" /> {ui.project.prevProject}
+              </a>
             ) : <span />}
             {nextSlug ? (
-              <a href={`/${nextSlug}`} className="hover:text-(--color-text) transition-colors">{ui.project.nextProject}</a>
+              <a href={`/${nextSlug}`} className="flex items-center gap-[4px] hover:text-(--color-text) transition-colors">
+                {ui.project.nextProject} <ArrowIcon />
+              </a>
             ) : <span />}
           </div>
           <div className="divider mt-[30px]" />

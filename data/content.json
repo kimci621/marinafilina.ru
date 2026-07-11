@@ -204,7 +204,7 @@
     "projectCard": {
       "label": "Project",
       "linkText": "Посмотреть проект",
-      "linkArrow": "→"
+      "linkArrow": ""
     },
     "footer": {
       "socialsLabel": "СОЦСЕТИ"
@@ -217,13 +217,13 @@
       "taskLabel": "Задача",
       "conceptLabel": "Концепт",
       "servicesLabel": "Услуги",
-      "prevProject": "← предыдущий проект",
-      "nextProject": "следующий проект →"
+      "prevProject": "предыдущий проект",
+      "nextProject": "следующий проект"
     },
     "notFound": {
       "title": "404",
       "text": "Страница не найдена",
-      "linkText": "На главную →"
+      "linkText": "На главную"
     }
   },
   "photos": {}
