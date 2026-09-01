@@ -281,7 +281,13 @@ a:focus-visible, button:focus-visible {
   width: 100%; height: 100%;
   object-fit: cover;
 }
-.project-card__index, .project-card__mark { position: relative; z-index: 1; }
+.project-card__pixelate {
+  position: absolute; inset: 0; z-index: 1;
+  display: grid; grid-template-columns: repeat(8, 1fr); grid-template-rows: repeat(5, 1fr);
+  pointer-events: none;
+}
+.project-card__pixelate span { opacity: 0; }
+.project-card__index, .project-card__mark { position: relative; z-index: 2; }
 .project-card__index { font-weight: 700; font-size: 0.9rem; }
 .project-card__mark {
   width: 18px; height: 18px;
@@ -455,6 +461,7 @@ a:focus-visible, button:focus-visible {
 .project-gallery figure.is-wide { grid-column: 1 / -1; aspect-ratio: 21 / 9; }
 @media (max-width: 720px) {
   .project-gallery { grid-template-columns: 1fr; }
+  .project-gallery figure { aspect-ratio: 3 / 4; }
   .project-gallery figure.is-wide { aspect-ratio: 4 / 3; }
 }
 

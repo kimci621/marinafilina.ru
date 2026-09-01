@@ -55,9 +55,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function renderGallery() {
     const gallery = document.getElementById('projectGallery');
-    gallery.innerHTML = project.photos.map((src, i) => `
+    gallery.innerHTML = project.photos.map((photo, i) => `
       <figure class="project-card__image project-card__image--${project.color} ${i === 0 ? 'is-wide' : ''}" data-reveal>
-        <img class="project-card__photo" data-fallback src="${src}" alt="${project.title} — фото ${i + 1}" loading="lazy">
+        <picture>
+          ${photo.mobile ? `<source media="(max-width: 720px)" srcset="${photo.mobile}">` : ''}
+          <img class="project-card__photo" data-fallback src="${photo.src}" alt="${project.title} — фото ${i + 1}" loading="lazy">
+        </picture>
         <span class="project-card__index">${pad(i + 1)}</span>
       </figure>`).join('');
     gallery.querySelectorAll('img[data-fallback]').forEach(attachPhotoFallback);
@@ -74,7 +77,7 @@ document.addEventListener('DOMContentLoaded', () => {
       <article class="project-card" data-reveal>
         <a href="project.html?slug=${p.slug}" data-cursor-label="ОТКРЫТЬ">
           <div class="project-card__image project-card__image--${p.color}">
-            <img class="project-card__photo" data-fallback src="${p.photos[0]}" alt="" loading="lazy">
+            <img class="project-card__photo" data-fallback src="${p.covers[0]}" alt="" loading="lazy">
             <span class="project-card__index">${p.index}</span>
             <span class="project-card__mark"></span>
           </div>

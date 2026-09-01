@@ -60,7 +60,7 @@ document.addEventListener('DOMContentLoaded', () => {
       <article class="project-card ${wide ? 'project-card--wide' : ''}" data-reveal>
         <a href="project.html?slug=${p.slug}" data-cursor-label="ОТКРЫТЬ">
           <div class="project-card__image project-card__image--${p.color}">
-            <img class="project-card__photo" data-fallback src="${p.photos[0]}" alt="" loading="lazy">
+            <img class="project-card__photo" data-fallback src="${p.covers[0]}" alt="" loading="lazy">
             <span class="project-card__index">${p.index}</span>
             <span class="project-card__mark"></span>
           </div>
@@ -72,6 +72,59 @@ document.addEventListener('DOMContentLoaded', () => {
       </article>`;
     }).join('');
     grid.querySelectorAll('img[data-fallback]').forEach(attachPhotoFallback);
+    grid.querySelectorAll('.project-card').forEach((card, i) => setupCoverCycle(card, projects[i]));
+  }
+
+  // ---- project cards: cycle 3 covers every 5s with a right-to-left pixelation wipe, pausing on hover ----
+  const PIXEL_COLS = 8;
+  const PIXEL_ROWS = 5;
+
+  function setupCoverCycle(card, project) {
+    const covers = project.covers;
+    if (!covers || covers.length < 2) return;
+    const imageBox = card.querySelector('.project-card__image');
+    const img = card.querySelector('.project-card__photo');
+
+    const pixelate = document.createElement('div');
+    pixelate.className = 'project-card__pixelate';
+    for (let r = 0; r < PIXEL_ROWS; r++) {
+      for (let c = 0; c < PIXEL_COLS; c++) {
+        const cell = document.createElement('span');
+        const t = c / (PIXEL_COLS - 1);
+        cell.style.background = `hsl(60 4% ${96 - t * 8}%)`;
+        pixelate.appendChild(cell);
+      }
+    }
+    imageBox.appendChild(pixelate);
+    const cells = pixelate.children;
+
+    let index = 0;
+    let hovered = false;
+    let timer = null;
+    const schedule = () => { timer = setTimeout(tick, 5000); };
+
+    function tick() {
+      if (hovered) { schedule(); return; }
+      const next = (index + 1) % covers.length;
+      gsap.timeline({ onComplete: schedule })
+        .to(cells, {
+          opacity: 1,
+          duration: 0.35,
+          ease: 'power1.inOut',
+          stagger: { each: 0.03, from: 'end', grid: [PIXEL_ROWS, PIXEL_COLS], axis: 'x' },
+        })
+        .call(() => { img.src = covers[next]; index = next; })
+        .to(cells, {
+          opacity: 0,
+          duration: 0.35,
+          ease: 'power1.inOut',
+          stagger: { each: 0.03, from: 'end', grid: [PIXEL_ROWS, PIXEL_COLS], axis: 'x' },
+        });
+    }
+
+    card.addEventListener('mouseenter', () => { hovered = true; });
+    card.addEventListener('mouseleave', () => { hovered = false; });
+    schedule();
   }
 
   function renderAbout() {
