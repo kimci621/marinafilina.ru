@@ -69,9 +69,18 @@ document.addEventListener('DOMContentLoaded', () => {
           </div>
         </a>
       </article>`;
-    }).join('') + (projects.length % 2 === 1 ? '<div class="project-card__spacer" aria-hidden="true"></div>' : '');
+    }).join('') + `
+      <article class="project-card project-card--cta" data-reveal>
+        <div class="project-card__image project-card__image--cta">
+          <span class="project-card__mark"></span>
+        </div>
+        <div class="project-card__meta">
+          <h3>${C.work.cta.title}</h3>
+          <p><a href="#contact" data-cursor-label="НАПИСАТЬ">${C.work.cta.linkText}</a>${C.work.cta.suffix}</p>
+        </div>
+      </article>` + ((projects.length + 1) % 2 === 1 ? '<div class="project-card__spacer" aria-hidden="true"></div>' : '');
     grid.querySelectorAll('img[data-fallback]').forEach(attachPhotoFallback);
-    grid.querySelectorAll('.project-card').forEach((card, i) => setupCoverCycle(card, projects[i]));
+    grid.querySelectorAll('.project-card').forEach((card, i) => { if (projects[i]) setupCoverCycle(card, projects[i]); });
   }
 
   // ---- project cards: cycle 3 covers every 5s with a right-to-left pixelation wipe, pausing on hover ----

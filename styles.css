@@ -304,6 +304,33 @@ a:focus-visible, button:focus-visible {
 .project-card__meta p { margin: 0.3em 0 0; color: var(--mute); font-size: 0.9rem; }
 .project-card__spacer { background: var(--paper); }
 
+.project-card--cta .project-card__image {
+  align-items: center;
+  justify-content: center;
+  background: var(--paper-dim);
+  color: var(--mute);
+}
+.project-card--cta .project-card__mark {
+  position: static;
+  width: 32px; height: 32px;
+  border: none;
+  opacity: 1;
+}
+.project-card--cta .project-card__mark::before,
+.project-card--cta .project-card__mark::after {
+  content: '';
+  position: absolute;
+  background: var(--mute);
+}
+.project-card--cta .project-card__mark::before { width: 32px; height: 1px; top: 50%; left: 50%; transform: translate(-50%, -50%); }
+.project-card--cta .project-card__mark::after { width: 1px; height: 32px; top: 50%; left: 50%; transform: translate(-50%, -50%); }
+.project-card--cta .project-card__meta p a {
+  color: var(--ink);
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+.project-card--cta .project-card__meta p a:hover { color: var(--mute); }
+
 @media (max-width: 720px) {
   .work__grid { grid-template-columns: 1fr; margin: 0 var(--space-2); }
   .project-card__spacer { display: none; }
