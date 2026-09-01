@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Марина Филина — Внештатный арт-директор бренда</title>
+<meta name="description" content="Портфолио Марины Филиной (WithArt). Бренд-дизайнер: создаю образ бренда, продающий вашу идею.">
+<meta property="og:title" content="Марина Филина — Внештатный арт-директор бренда">
+<meta property="og:description" content="Портфолио Марины Филиной (WithArt). Бренд-дизайнер: создаю образ бренда, продающий вашу идею.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://marinafilina.ru/">
+<meta property="og:image" content="https://marinafilina.ru/images/og-image.png">
+<meta property="og:image:width" content="1512">
+<meta property="og:image:height" content="795">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://marinafilina.ru/">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect x='2' y='2' width='96' height='96' fill='%2314171a'/%3E%3Ctext x='50' y='62' font-family='Arial, sans-serif' font-weight='700' font-size='42' text-anchor='middle' fill='%23ffffff' letter-spacing='-1'%3EMF%3C/text%3E%3Crect x='26' y='72' width='48' height='4' fill='%230a4da2'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<a href="#top" class="skip-link">Перейти к содержимому</a>
+
+<div class="cursor-line cursor-line--v" id="cursorV" aria-hidden="true"></div>
+<div class="cursor-line cursor-line--h" id="cursorH" aria-hidden="true"></div>
+<div class="cursor-label" id="cursorLabel" aria-hidden="true">C01 / R01</div>
+
+<div class="preloader" id="preloader" aria-hidden="true">
+  <div class="preloader__mark" id="preloaderMark"></div>
+  <div class="preloader__track"><div class="preloader__fill" id="preloaderFill"></div></div>
+</div>
+
+<header class="nav">
+  <a href="#top" class="nav__logo" id="navLogo"></a>
+  <nav class="nav__links" id="navLinks"></nav>
+</header>
+
+<main id="top">
+
+  <section class="hero">
+    <div class="grid-guides grid-guides--numbered" id="heroGrid" aria-hidden="true">
+      <span></span><span></span><span></span><span></span><span></span><span></span>
+      <span></span><span></span><span></span><span></span><span></span><span></span>
+    </div>
+    <h1 class="hero__title" id="heroTitle"></h1>
+    <p class="hero__sub" id="heroSub" data-reveal></p>
+    <div class="hero__scroll" aria-hidden="true">
+      <span></span>
+      <p>скролл</p>
+    </div>
+  </section>
+
+  <div class="strip" aria-hidden="true">
+    <div class="strip__track" id="stripTrack"></div>
+  </div>
+
+  <section class="work" id="work">
+    <div class="eyebrow" data-reveal>
+      <span class="eyebrow__index" id="workIndex"></span>
+      <span class="eyebrow__label" id="workLabel"></span>
+      <span class="eyebrow__rule"></span>
+    </div>
+    <div class="work__grid" id="workGrid"></div>
+  </section>
+
+  <section class="about" id="about">
+    <div class="eyebrow" data-reveal>
+      <span class="eyebrow__index" id="aboutIndex"></span>
+      <span class="eyebrow__label" id="aboutLabel"></span>
+      <span class="eyebrow__rule"></span>
+    </div>
+
+    <h2 class="section-title" id="aboutIntroTitle" data-reveal></h2>
+    <ul class="about__intro-list" id="aboutIntroList" data-reveal></ul>
+
+    <div class="about__profile" data-reveal>
+      <div class="about__profile-mark" id="aboutMark"></div>
+      <div class="about__profile-info">
+        <h3 id="aboutName"></h3>
+        <p class="about__role" id="aboutRole"></p>
+        <p class="about__agencies-label" id="aboutAgenciesLabel"></p>
+        <ul class="about__agencies" id="aboutAgencies"></ul>
+      </div>
+    </div>
+
+    <ol class="process__list" id="processList"></ol>
+
+    <div class="about__format" data-reveal>
+      <span class="about__format-label" id="formatLabel"></span>
+      <h3 id="formatTitle"></h3>
+      <p id="formatText"></p>
+    </div>
+
+    <div class="about__combo" data-reveal>
+      <h3 id="comboTitle"></h3>
+      <div id="comboParagraphs"></div>
+    </div>
+
+    <div class="about__notdoing">
+      <h3 data-reveal id="notDoingTitle"></h3>
+      <div class="about__notdoing-grid" id="notDoingItems"></div>
+    </div>
+
+    <div class="about__price" data-reveal>
+      <span id="priceLabel"></span>
+      <strong id="priceValue"></strong>
+    </div>
+  </section>
+
+  <section class="contact" id="contact">
+    <div class="eyebrow" data-reveal>
+      <span class="eyebrow__index" id="contactIndex"></span>
+      <span class="eyebrow__label" id="contactLabel"></span>
+      <span class="eyebrow__rule"></span>
+    </div>
+    <h2 class="section-title" id="contactTitle" data-reveal></h2>
+    <a href="#" class="contact__link" id="contactEmail" data-cursor-label="ПИСЬМО"></a>
+    <a href="#" class="contact__phone" id="contactPhone" data-reveal></a>
+    <div class="contact__social" id="contactSocial" data-reveal></div>
+  </section>
+
+</main>
+
+<footer class="footer">
+  <p id="footerCopyright"></p>
+  <p id="footerCredit"></p>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.7/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.7/dist/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.18/dist/lenis.min.js"></script>
+<script src="content.js"></script>
+<script src="brand-mark.js"></script>
+<script src="main.js"></script>
+</body>
+</html>
