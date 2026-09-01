@@ -206,7 +206,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function renderFooter() {
     document.getElementById('footerCopyright').textContent = C.footer.copyright;
-    document.getElementById('footerCredit').textContent = C.footer.credit;
+    document.getElementById('footerCredit').innerHTML =
+      C.footer.credit.replace(/@\S+/, `<a href="${C.footer.creditHref}" target="_blank" rel="noopener">$&</a>`);
   }
 
   renderMeta();

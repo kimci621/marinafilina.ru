@@ -262,6 +262,7 @@ window.SITE_CONTENT = {
 
   footer: {
     copyright: '© 2026 Марина Филина · WithArt',
-    credit: 'Сделано на GSAP + Lenis',
+    credit: 'Сделал Amir Latipov, @amir_ltpf',
+    creditHref: 'https://t.me/amir_ltpf',
   },
 };
