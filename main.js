@@ -200,7 +200,7 @@ document.addEventListener('DOMContentLoaded', () => {
     phoneLink.textContent = C.contact.phone;
     const social = document.getElementById('contactSocial');
     social.innerHTML = C.contact.socials.map((s) =>
-      `<a href="${s.href}" data-cursor-label="ОТКРЫТЬ">${s.label}<span class="social__handle">${s.handle}</span></a>`
+      `<a href="${s.href}" target="_blank" rel="noopener" data-cursor-label="ОТКРЫТЬ">${s.label}<span class="social__handle">${s.handle}</span></a>`
     ).join('');
   }
 

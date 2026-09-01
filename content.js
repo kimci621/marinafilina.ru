@@ -251,11 +251,12 @@ window.SITE_CONTENT = {
     subtitle: 'Беру ограниченное количество проектов одновременно — часы, которые резервирую под вас, я не делю ни с кем другим.',
     email: 'marine.owl@yandex.ru',
     phone: '+7 (903) 650-65-99',
-    // TODO: получить у Марины реальные ссылки на соцсети (сейчас href — заглушки '#')
     socials: [
-      { label: 'Instagram', handle: '@withart', href: '#' },
-      { label: 'Behance', handle: '@withart', href: '#' },
-      { label: 'LinkedIn', handle: 'Марина Филина', href: '#' },
+      { label: 'Instagram', handle: '@marina_withart', href: 'https://www.instagram.com/marina_withart' },
+      { label: 'Behance', handle: 'marinafilina', href: 'https://www.behance.net/marinafilina' },
+      { label: 'VK', handle: 'kuriocity', href: 'https://vk.ru/kuriocity' },
+      { label: 'LinkedIn', handle: 'Марина Филина', href: 'https://www.linkedin.com/in/marina-f-a2561410b/' },
+      { label: 'Threads', handle: '@marina_withart', href: 'https://www.threads.com/@marina_withart' },
     ],
   },
 
