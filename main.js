@@ -54,10 +54,9 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('workIntro').textContent = C.work.intro;
     const grid = document.getElementById('workGrid');
     const projects = C.work.projects;
-    grid.innerHTML = projects.map((p, i) => {
-      const wide = i === projects.length - 1 && projects.length % 2 === 1;
+    grid.innerHTML = projects.map((p) => {
       return `
-      <article class="project-card ${wide ? 'project-card--wide' : ''}" data-reveal>
+      <article class="project-card" data-reveal>
         <a href="project.html?slug=${p.slug}" data-cursor-label="ОТКРЫТЬ">
           <div class="project-card__image project-card__image--${p.color}">
             <img class="project-card__photo" data-fallback src="${p.covers[0]}" alt="" loading="lazy">
@@ -70,7 +69,7 @@ document.addEventListener('DOMContentLoaded', () => {
           </div>
         </a>
       </article>`;
-    }).join('');
+    }).join('') + (projects.length % 2 === 1 ? '<div class="project-card__spacer" aria-hidden="true"></div>' : '');
     grid.querySelectorAll('img[data-fallback]').forEach(attachPhotoFallback);
     grid.querySelectorAll('.project-card').forEach((card, i) => setupCoverCycle(card, projects[i]));
   }

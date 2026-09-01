@@ -301,12 +301,11 @@ a:focus-visible, button:focus-visible {
 .project-card__meta { padding: var(--space-2); border-top: 1px solid var(--line); }
 .project-card__meta h3 { font-size: 1.2rem; font-weight: 700; }
 .project-card__meta p { margin: 0.3em 0 0; color: var(--mute); font-size: 0.9rem; }
-.project-card--wide { grid-column: 1 / -1; }
-.project-card--wide .project-card__image { aspect-ratio: 21 / 9; }
+.project-card__spacer { background: var(--paper); }
 
 @media (max-width: 720px) {
   .work__grid { grid-template-columns: 1fr; margin: 0 var(--space-2); }
-  .project-card--wide .project-card__image { aspect-ratio: 4 / 3; }
+  .project-card__spacer { display: none; }
 }
 
 /* ---- about ---- */
