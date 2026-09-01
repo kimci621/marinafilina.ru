@@ -271,15 +271,16 @@ a:focus-visible, button:focus-visible {
   color: var(--paper);
   transition: background 0.2s ease, color 0.2s ease;
 }
-.project-card__image--a { background: var(--blue); }
-.project-card__image--b { background: var(--ink); }
-.project-card__image--c { background: var(--red); }
-.project-card__image--d { background: #177a41; }
-.project-card__image--e { background: #e8a400; color: var(--ink); }
+/* фирменный цвет под каждый проект — по его собственной цветовой гамме, не общая палитра */
+.project-card__image--a { background: #3f1568; } /* факультет ПММ — глубокий фиолетовый генеративной графики */
+.project-card__image--b { background: #16323f; } /* Syntepart — заводской тёмно-синий */
+.project-card__image--c { background: #e8601a; color: var(--ink); } /* Fittin — фирменный оранжевый */
+.project-card__image--d { background: #245f7d; } /* FLY & SURF — океанический синий */
+.project-card__image--e { background: #e2677f; color: var(--ink); } /* MANIPULA — тёплый коралловый */
 .project-card__photo {
   position: absolute; inset: 0; z-index: 0;
   width: 100%; height: 100%;
-  object-fit: cover;
+  object-fit: contain;
 }
 .project-card__pixelate {
   position: absolute; inset: 0; z-index: 1;

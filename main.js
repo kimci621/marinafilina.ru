@@ -78,11 +78,20 @@ document.addEventListener('DOMContentLoaded', () => {
   const PIXEL_COLS = 8;
   const PIXEL_ROWS = 5;
 
+  // лёгкий тон фона проекта поверх белого — вместо нейтрального серого
+  function tintWithWhite(rgb, ratio) {
+    const [r, g, b] = rgb;
+    const mix = (c) => Math.round(255 * (1 - ratio) + c * ratio);
+    return `rgb(${mix(r)}, ${mix(g)}, ${mix(b)})`;
+  }
+
   function setupCoverCycle(card, project) {
     const covers = project.covers;
     if (!covers || covers.length < 2) return;
     const imageBox = card.querySelector('.project-card__image');
     const img = card.querySelector('.project-card__photo');
+
+    const bg = getComputedStyle(imageBox).backgroundColor.match(/\d+/g).map(Number);
 
     const pixelate = document.createElement('div');
     pixelate.className = 'project-card__pixelate';
@@ -90,7 +99,7 @@ document.addEventListener('DOMContentLoaded', () => {
       for (let c = 0; c < PIXEL_COLS; c++) {
         const cell = document.createElement('span');
         const t = c / (PIXEL_COLS - 1);
-        cell.style.background = `hsl(60 4% ${96 - t * 8}%)`;
+        cell.style.background = tintWithWhite(bg, 0.08 + t * 0.06);
         pixelate.appendChild(cell);
       }
     }
@@ -107,17 +116,17 @@ document.addEventListener('DOMContentLoaded', () => {
       const next = (index + 1) % covers.length;
       gsap.timeline({ onComplete: schedule })
         .to(cells, {
-          opacity: 1,
-          duration: 0.35,
-          ease: 'power1.inOut',
-          stagger: { each: 0.03, from: 'end', grid: [PIXEL_ROWS, PIXEL_COLS], axis: 'x' },
+          opacity: 0.92,
+          duration: 0.5,
+          ease: 'sine.inOut',
+          stagger: { each: 0.035, from: 'end', grid: [PIXEL_ROWS, PIXEL_COLS], axis: 'x' },
         })
         .call(() => { img.src = covers[next]; index = next; })
         .to(cells, {
           opacity: 0,
-          duration: 0.35,
-          ease: 'power1.inOut',
-          stagger: { each: 0.03, from: 'end', grid: [PIXEL_ROWS, PIXEL_COLS], axis: 'x' },
+          duration: 0.5,
+          ease: 'sine.inOut',
+          stagger: { each: 0.035, from: 'end', grid: [PIXEL_ROWS, PIXEL_COLS], axis: 'x' },
         });
     }
 
