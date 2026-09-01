@@ -496,10 +496,12 @@ a:focus-visible, button:focus-visible {
 }
 .project-gallery figure { margin: 0; aspect-ratio: 4 / 3; }
 .project-gallery figure.is-wide { grid-column: 1 / -1; aspect-ratio: 21 / 9; }
+.project-gallery__spacer { background: var(--paper); aspect-ratio: 4 / 3; }
 @media (max-width: 720px) {
   .project-gallery { grid-template-columns: 1fr; }
   .project-gallery figure { aspect-ratio: 3 / 4; }
   .project-gallery figure.is-wide { aspect-ratio: 4 / 3; }
+  .project-gallery__spacer { display: none; }
 }
 
 .project-description { padding: var(--space-5) var(--space-3); border-top: 1px solid var(--line-strong); }

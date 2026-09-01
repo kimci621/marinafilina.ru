@@ -55,6 +55,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function renderGallery() {
     const gallery = document.getElementById('projectGallery');
+    const normalCount = project.photos.length - 1; // первое фото — is-wide на всю ширину
     gallery.innerHTML = project.photos.map((photo, i) => `
       <figure class="project-card__image project-card__image--${project.color} ${i === 0 ? 'is-wide' : ''}" data-reveal>
         <picture>
@@ -62,7 +63,7 @@ document.addEventListener('DOMContentLoaded', () => {
           <img class="project-card__photo" data-fallback src="${photo.src}" alt="${project.title} — фото ${i + 1}" loading="lazy">
         </picture>
         <span class="project-card__index">${pad(i + 1)}</span>
-      </figure>`).join('');
+      </figure>`).join('') + (normalCount % 2 === 1 ? '<div class="project-gallery__spacer" aria-hidden="true"></div>' : '');
     gallery.querySelectorAll('img[data-fallback]').forEach(attachPhotoFallback);
   }
 
