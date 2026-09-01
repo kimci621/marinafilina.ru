@@ -246,6 +246,7 @@ a:focus-visible, button:focus-visible {
 
 /* ---- work grid ---- */
 .work { position: relative; padding: var(--space-5) 0; }
+.work__intro { max-width: 56ch; padding: 0 var(--space-3); margin: 0 0 var(--space-4); color: var(--mute); font-size: 1.05rem; }
 .work__grid {
   position: relative; z-index: 1;
   display: grid;
@@ -325,6 +326,7 @@ a:focus-visible, button:focus-visible {
 .about__agencies li { display: flex; flex-direction: column; border-left: 2px solid var(--blue); padding-left: 0.6em; }
 .about__agencies strong { font-weight: 700; }
 .about__agencies span { font-size: 0.75rem; color: var(--mute); }
+.about__agencies-note { margin: var(--space-2) 0 0; color: var(--mute); font-size: 0.9rem; max-width: 42ch; }
 
 .process__list { list-style: none; margin: 0 0 var(--space-5); padding: 0 var(--space-3); display: flex; flex-direction: column; gap: 0; }
 .process__list li { display: flex; gap: var(--space-3); border-top: 1px solid var(--line); padding: var(--space-2) 0; }
@@ -348,6 +350,7 @@ a:focus-visible, button:focus-visible {
 
 .about__notdoing { padding: 0 var(--space-3); margin-bottom: var(--space-5); }
 .about__notdoing > h3 { font-size: 1.6rem; font-weight: 800; margin-bottom: var(--space-2); }
+.about__notdoing-intro { margin: 0 0 var(--space-2); color: var(--mute); max-width: 56ch; }
 .about__notdoing-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--line-strong); border: 1px solid var(--line-strong); }
 .about__notdoing-grid > div { background: var(--paper); padding: var(--space-2); }
 .about__notdoing-grid h4 { font-size: 1.1rem; font-weight: 700; margin: 0 0 0.4em; }
@@ -357,16 +360,15 @@ a:focus-visible, button:focus-visible {
 }
 
 .about__price {
-  display: flex;
-  align-items: baseline;
-  gap: var(--space-2);
   padding: var(--space-3);
   margin: 0 var(--space-3);
   border-top: 1px solid var(--ink);
   border-bottom: 1px solid var(--ink);
 }
+.about__price-row { display: flex; align-items: baseline; gap: var(--space-2); }
 .about__price span { font-size: 0.75rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--mute); }
 .about__price strong { font-size: clamp(1.4rem, 1rem + 1.6vw, 2rem); font-weight: 800; color: var(--red); }
+.about__price-note { margin: 0.5em 0 0; color: var(--mute); font-size: 0.9rem; }
 
 /* ---- contact ---- */
 .contact {
@@ -376,6 +378,7 @@ a:focus-visible, button:focus-visible {
 }
 .contact .section-title { padding: 0; }
 .contact .eyebrow { padding: 0; }
+.contact__subtitle { max-width: 48ch; margin: -0.5em auto var(--space-3); color: var(--mute); }
 .contact__link {
   display: inline-block;
   font-size: clamp(1.4rem, 1rem + 2.6vw, 2.6rem);

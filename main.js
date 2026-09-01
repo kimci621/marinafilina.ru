@@ -51,6 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function renderWork() {
     document.getElementById('workIndex').textContent = C.work.eyebrowIndex;
     document.getElementById('workLabel').textContent = C.work.eyebrowLabel;
+    document.getElementById('workIntro').textContent = C.work.intro;
     const grid = document.getElementById('workGrid');
     const projects = C.work.projects;
     grid.innerHTML = projects.map((p, i) => {
@@ -90,6 +91,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('aboutAgencies').innerHTML = A.profile.agencies.map((a) =>
       `<li><strong>${a.name}</strong><span>${a.years}</span></li>`
     ).join('');
+    document.getElementById('aboutAgenciesNote').textContent = A.profile.agenciesNote;
 
     document.getElementById('processList').innerHTML = A.steps.map((s, i) => `
       <li data-reveal>
@@ -105,18 +107,21 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('comboParagraphs').innerHTML = A.combo.paragraphs.map((p) => `<p>${p}</p>`).join('');
 
     document.getElementById('notDoingTitle').textContent = A.notDoing.title;
+    document.getElementById('notDoingIntro').textContent = A.notDoing.intro;
     document.getElementById('notDoingItems').innerHTML = A.notDoing.items.map((item) =>
       `<div data-reveal><h4>${item.title}</h4><p>${item.text}</p></div>`
     ).join('');
 
     document.getElementById('priceLabel').textContent = A.price.label;
     document.getElementById('priceValue').textContent = A.price.value;
+    document.getElementById('priceNote').textContent = A.price.note;
   }
 
   function renderContact() {
     document.getElementById('contactIndex').textContent = C.contact.eyebrowIndex;
     document.getElementById('contactLabel').textContent = C.contact.eyebrowLabel;
     document.getElementById('contactTitle').textContent = C.contact.title;
+    document.getElementById('contactSubtitle').textContent = C.contact.subtitle;
     const emailLink = document.getElementById('contactEmail');
     emailLink.href = `mailto:${C.contact.email}`;
     emailLink.textContent = C.contact.email;
