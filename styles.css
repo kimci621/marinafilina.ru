@@ -9,7 +9,7 @@
   --line: rgba(20, 23, 26, 0.14);
   --line-strong: rgba(20, 23, 26, 0.55);
 
-  --font: "Inter", sans-serif;
+  --font: "Geologica", sans-serif;
 
   --space-1: clamp(0.5rem, 0.4rem + 0.4vw, 0.75rem);
   --space-2: clamp(1rem, 0.8rem + 0.8vw, 1.5rem);

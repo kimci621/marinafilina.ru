@@ -11,7 +11,7 @@ Repo: `https://github.com/kimci621/marinafilina.ru.git`, ветка `master`.
   это осознанный выбор, не пробел.
 - GSAP 3.12.7 + ScrollTrigger, Lenis 1.1.18 — подключены через CDN прямо в HTML (`<script>` теги),
   версии запинены. Не менять на другой стек анимации.
-- Шрифт — Inter (см. `--font` в `styles.css`).
+- Шрифт — Geologica (см. `--font` в `styles.css`), Google Fonts, начертания 400–800. До октября 2026 был Inter.
 - Деплой на Vercel: **Framework Preset = Other** (No Framework), Build Command и Output Directory
   пустые (или Output = `.`). Root Directory `./`.
 
