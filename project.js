@@ -5,6 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const hasFinePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
   const pad = (n) => String(n).padStart(2, '0');
+  const { contactActionsHTML, bindCopyButton, showWithoutMotion } = window.SITE_SHARED;
 
   const slug = new URLSearchParams(location.search).get('slug');
   const projects = C.work.projects;
@@ -40,12 +41,12 @@ document.addEventListener('DOMContentLoaded', () => {
     logo.innerHTML = `${window.BRAND_MARK_SVG}<span>${C.brand.name}</span>`;
     const links = document.getElementById('navLinks');
     links.innerHTML = C.nav.links.map((l) =>
-      `<a href="index.html${l.href}" class="${l.cta ? 'nav__cta' : ''}" data-cursor-label="${l.cursorLabel}">${l.label}</a>`
+      `<a href="index.html${l.href}" class="${l.cta ? 'nav__cta' : ''}" data-cursor-label="${l.cursorLabel}"${l.href === '#work' ? ' aria-current="true"' : ''}>${l.label}</a>`
     ).join('');
   }
 
   function renderHero() {
-    document.getElementById('projectIndex').textContent = project.index;
+    document.getElementById('projectIndex').textContent = `${project.index} / ${pad(projects.length)}`;
     const title = document.getElementById('projectTitle');
     title.innerHTML = project.title.split(' ').map((w) => `<span>${w}</span>`).join(' ');
     document.getElementById('projectSubtitle').textContent = project.subtitle;
@@ -68,12 +69,24 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function renderDescription() {
+    document.getElementById('descriptionLabel').textContent = C.caseLabels.description;
     document.getElementById('projectDescription').textContent = project.description;
   }
 
+  function renderContact() {
+    document.getElementById('caseContactLabel').textContent = C.caseLabels.contact;
+    document.getElementById('caseContactTitle').textContent = C.contact.caseTitle;
+    document.getElementById('caseContactSubtitle').textContent = C.contact.subtitle;
+    const actions = document.getElementById('contactActions');
+    actions.innerHTML = contactActionsHTML(C.contact);
+    bindCopyButton(actions, C.contact);
+  }
+
   function renderNext() {
-    const others = projects.filter((p) => p.slug !== project.slug);
-    const next = [others[0], others[1]].filter(Boolean);
+    document.getElementById('nextLabel').textContent = C.caseLabels.next;
+    // по порядку и по кругу: после P.03 идут P.04 и P.05, после P.05 снова P.01
+    const at = projects.indexOf(project);
+    const next = [1, 2].map((k) => projects[(at + k) % projects.length]).filter((p) => p !== project);
     document.getElementById('projectNext').innerHTML = next.map((p) => `
       <article class="project-card" data-reveal>
         <a href="project.html?slug=${p.slug}" data-cursor-label="ОТКРЫТЬ">
@@ -93,7 +106,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function renderFooter() {
     document.getElementById('footerCopyright').textContent = C.footer.copyright;
-    document.getElementById('footerCredit').textContent = C.footer.credit;
+    document.getElementById('footerCredit').innerHTML =
+      C.footer.credit.replace(/@\S+/, `<a href="${C.footer.creditHref}" target="_blank" rel="noopener">$&</a>`);
   }
 
   renderMeta();
@@ -101,13 +115,19 @@ document.addEventListener('DOMContentLoaded', () => {
   renderHero();
   renderGallery();
   renderDescription();
+  renderContact();
   renderNext();
   renderFooter();
+
+  if (!window.gsap || !window.ScrollTrigger) {
+    showWithoutMotion();
+    return;
+  }
 
   gsap.registerPlugin(ScrollTrigger);
   if (prefersReducedMotion) gsap.globalTimeline.timeScale(50);
 
-  if (!prefersReducedMotion) {
+  if (!prefersReducedMotion && window.Lenis) {
     const lenis = new Lenis({ duration: 1.2, smoothWheel: true });
     lenis.on('scroll', ScrollTrigger.update);
     gsap.ticker.add((time) => lenis.raf(time * 1000));
@@ -133,6 +153,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     window.addEventListener('mousemove', (e) => {
       const { clientX: x, clientY: y } = e;
+      document.body.classList.add('has-cursor');
       vLine.style.left = `${x}px`;
       hLine.style.top = `${y}px`;
       label.style.left = `${x + 14}px`;

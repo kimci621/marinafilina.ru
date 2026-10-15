@@ -34,11 +34,13 @@ Repo: `https://github.com/kimci621/marinafilina.ru.git`, ветка `master`.
 | Файл | Что делает |
 |---|---|
 | `content.js` | **Единственное место для правки контента.** Все тексты, ссылки, соцсети, проекты — здесь (`window.SITE_CONTENT`). HTML не трогаем ради текста. |
-| `brand-mark.js` | SVG-метка «МФ», переиспользуется в шапке/футере/странице кейса/favicon. |
+| `brand-mark.js` | SVG-метка «MF», переиспользуется в шапке/футере/странице кейса/favicon. |
+| `shared.js` | Общее для обеих страниц: блок контактов (почта + «Скопировать», Telegram, телефон) и запасной показ контента, если GSAP/Lenis не загрузились с CDN. |
 | `index.html` / `main.js` / `styles.css` | Главная страница. `main.js` рендерит DOM из `content.js` (`renderNav`, `renderHero`, `renderWork`, `renderAbout`, `renderContact`, `renderFooter`), потом запускает прелоадер → hero-анимацию → Lenis/ScrollTrigger. |
 | `project.html` / `project.js` | Страница кейса, `project.html?slug=<slug>`. Читает `slug` из URL, ищет проект в `C.work.projects`, рендерит галерею и «следующие проекты». |
 | `images/projects/<slug>/` | Фото проектов, см. раздел «Фото» ниже. |
 | `images/og-image.png` | og:image для шаринга. |
+| `images/about/marina.webp` | Фото Марины в блоке «Обо мне». |
 
 ## Контент и структура данных (`content.js`)
 
@@ -51,7 +53,9 @@ Repo: `https://github.com/kimci621/marinafilina.ru.git`, ветка `master`.
     того же кадра, показывается через `<picture><source media="(max-width:720px)">` на ≤720px.
   - Если файла нет — `<img onerror>` гасит картинку, остаётся плоская фирменная заливка проекта.
 - `work.cta` — CTA-карточка последней в сетке работ (`{ title, linkText, suffix }`), ведёт на `#contact`.
-- `about`, `contact` (email, phone, `socials[]`), `footer` (`copyright`, `credit`, `creditHref`).
+- `about` (заголовок, лид, фото, профиль, шаги работы), `terms` (спец-лист «Формат и стоимость»: цена + строки условий),
+  `contact` (email, telegram, phone, `socials[]`, `caseTitle` для блока на странице кейса), `caseLabels` (подписи разделов кейса),
+  `footer` (`copyright`, `credit`, `creditHref`).
 
 ### Проекты ↔ цвета (жёсткая связка 1:1)
 

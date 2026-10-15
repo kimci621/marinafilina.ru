@@ -47,10 +47,10 @@
     </div>
     <h1 class="hero__title" id="heroTitle"></h1>
     <p class="hero__sub" id="heroSub" data-reveal></p>
-    <div class="hero__scroll" aria-hidden="true">
-      <span></span>
-      <p>скролл</p>
-    </div>
+    <a href="#work" class="hero__scroll" id="heroScroll">
+      <span aria-hidden="true"></span>
+      <span id="heroScrollLabel"></span>
+    </a>
   </section>
 
   <div class="strip" aria-hidden="true">
@@ -60,7 +60,7 @@
   <section class="work" id="work">
     <div class="eyebrow" data-reveal>
       <span class="eyebrow__index" id="workIndex"></span>
-      <span class="eyebrow__label" id="workLabel"></span>
+      <h2 class="eyebrow__label" id="workLabel"></h2>
       <span class="eyebrow__rule"></span>
     </div>
     <p class="work__intro" id="workIntro" data-reveal></p>
@@ -74,45 +74,41 @@
       <span class="eyebrow__rule"></span>
     </div>
 
-    <h2 class="section-title" id="aboutIntroTitle" data-reveal></h2>
-    <ul class="about__intro-list" id="aboutIntroList" data-reveal></ul>
-
-    <div class="about__profile" data-reveal>
-      <div class="about__profile-mark" id="aboutMark"></div>
-      <div class="about__profile-info">
+    <div class="about__grid">
+      <aside class="about__profile" data-reveal>
+        <span id="aboutPhoto" hidden></span>
         <h3 id="aboutName"></h3>
         <p class="about__role" id="aboutRole"></p>
         <p class="about__agencies-label" id="aboutAgenciesLabel"></p>
         <ul class="about__agencies" id="aboutAgencies"></ul>
         <p class="about__agencies-note" id="aboutAgenciesNote"></p>
+      </aside>
+
+      <div class="about__main">
+        <h2 class="section-title" id="aboutTitle" data-reveal></h2>
+        <div class="about__lead" id="aboutLead" data-reveal></div>
+        <h3 class="about__steps-title" id="stepsTitle" data-reveal></h3>
+        <ol class="process__list" id="processList"></ol>
       </div>
     </div>
+  </section>
 
-    <ol class="process__list" id="processList"></ol>
-
-    <div class="about__format" data-reveal>
-      <span class="about__format-label" id="formatLabel"></span>
-      <h3 id="formatTitle"></h3>
-      <p id="formatText"></p>
+  <section class="terms" id="terms">
+    <div class="eyebrow" data-reveal>
+      <span class="eyebrow__index" id="termsIndex"></span>
+      <span class="eyebrow__label" id="termsLabel"></span>
+      <span class="eyebrow__rule"></span>
     </div>
 
-    <div class="about__combo" data-reveal>
-      <h3 id="comboTitle"></h3>
-      <div id="comboParagraphs"></div>
-    </div>
-
-    <div class="about__notdoing">
-      <h3 data-reveal id="notDoingTitle"></h3>
-      <p class="about__notdoing-intro" data-reveal id="notDoingIntro"></p>
-      <div class="about__notdoing-grid" id="notDoingItems"></div>
-    </div>
-
-    <div class="about__price" data-reveal>
-      <div class="about__price-row">
-        <span id="priceLabel"></span>
-        <strong id="priceValue"></strong>
+    <div class="terms__grid">
+      <div class="terms__price" data-reveal>
+        <h2 class="section-title" id="termsTitle"></h2>
+        <span class="terms__price-label" id="priceLabel"></span>
+        <strong class="terms__price-value" id="priceValue"></strong>
+        <span class="terms__price-unit" id="priceUnit"></span>
+        <p class="terms__price-note" id="priceNote"></p>
       </div>
-      <p class="about__price-note" id="priceNote"></p>
+      <dl class="terms__list" id="termsList" data-reveal></dl>
     </div>
   </section>
 
@@ -124,8 +120,7 @@
     </div>
     <h2 class="section-title" id="contactTitle" data-reveal></h2>
     <p class="contact__subtitle" id="contactSubtitle" data-reveal></p>
-    <a href="#" class="contact__link" id="contactEmail" data-cursor-label="ПИСЬМО"></a>
-    <a href="#" class="contact__phone" id="contactPhone" data-reveal></a>
+    <div class="contact__actions" id="contactActions"></div>
     <div class="contact__social" id="contactSocial" data-reveal></div>
   </section>
 
@@ -141,6 +136,7 @@
 <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.18/dist/lenis.min.js"></script>
 <script src="content.js"></script>
 <script src="brand-mark.js"></script>
+<script src="shared.js"></script>
 <script src="main.js"></script>
 </body>
 </html>

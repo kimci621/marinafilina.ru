@@ -17,7 +17,7 @@ python3 -m http.server 8000
 ## Структура
 
 - `content.js` — весь контент сайта (тексты, ссылки, проекты, контакты). Правки контента — только здесь.
-- `brand-mark.js` — SVG-метка «МФ» (переиспользуется в шапке, футере, странице проекта, favicon).
+- `brand-mark.js` — SVG-метка «MF» (переиспользуется в шапке, футере, странице проекта, favicon).
 - `index.html` / `main.js` / `styles.css` — главная страница.
 - `project.html` / `project.js` — страница кейса (`project.html?slug=<slug>`), рендерится из `content.js`.
 - `images/projects/<slug>/` — сюда кладутся фото проектов.

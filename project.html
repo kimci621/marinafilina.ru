@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Проект — Марина Филина</title>
-<meta name="description" content="Кейс Марины Филиной (WithArt).">
-<meta property="og:title" content="Проект — Марина Филина">
-<meta property="og:description" content="Кейс Марины Филиной (WithArt).">
+<title>Кейс · Марина Филина, арт-директор бренда</title>
+<meta name="description" content="Кейс из портфолио Марины Филиной (WithArt): айдентика и фирменный стиль под ключ, от логотипа до носителей.">
+<meta property="og:title" content="Кейс · Марина Филина, арт-директор бренда">
+<meta property="og:description" content="Кейс из портфолио Марины Филиной (WithArt): айдентика и фирменный стиль под ключ, от логотипа до носителей.">
 <meta property="og:type" content="article">
 <meta property="og:url" content="https://marinafilina.ru/project.html">
 <meta property="og:image" content="https://marinafilina.ru/images/og-image.png">
@@ -47,21 +47,32 @@
     <div class="project-hero__services" id="projectServices" data-reveal></div>
   </section>
 
-  <section class="project-gallery" id="projectGallery"></section>
-
   <section class="project-description">
     <div class="eyebrow" data-reveal>
-      <span class="eyebrow__index">—</span>
-      <span class="eyebrow__label">О проекте</span>
+      <span class="eyebrow__index">01</span>
+      <h2 class="eyebrow__label" id="descriptionLabel"></h2>
       <span class="eyebrow__rule"></span>
     </div>
     <p class="project-description__text" id="projectDescription" data-reveal></p>
   </section>
 
+  <section class="project-gallery" id="projectGallery"></section>
+
+  <section class="contact contact--case" id="contact">
+    <div class="eyebrow" data-reveal>
+      <span class="eyebrow__index">02</span>
+      <span class="eyebrow__label" id="caseContactLabel"></span>
+      <span class="eyebrow__rule"></span>
+    </div>
+    <h2 class="section-title" id="caseContactTitle" data-reveal></h2>
+    <p class="contact__subtitle" id="caseContactSubtitle" data-reveal></p>
+    <div class="contact__actions" id="contactActions"></div>
+  </section>
+
   <section class="project-next">
     <div class="eyebrow" data-reveal>
-      <span class="eyebrow__index">→</span>
-      <span class="eyebrow__label">Другие работы</span>
+      <span class="eyebrow__index">03</span>
+      <h2 class="eyebrow__label" id="nextLabel"></h2>
       <span class="eyebrow__rule"></span>
     </div>
     <div class="project-next__grid" id="projectNext"></div>
@@ -79,6 +90,7 @@
 <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.18/dist/lenis.min.js"></script>
 <script src="content.js"></script>
 <script src="brand-mark.js"></script>
+<script src="shared.js"></script>
 <script src="project.js"></script>
 </body>
 </html>

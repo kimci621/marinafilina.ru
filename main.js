@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const hasFinePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
   const pad = (n) => String(n).padStart(2, '0');
+  const { contactActionsHTML, bindCopyButton, showWithoutMotion } = window.SITE_SHARED;
 
   // ---- render: content.js -> DOM ----
   function attachPhotoFallback(img) {
@@ -28,6 +29,24 @@ document.addEventListener('DOMContentLoaded', () => {
     ).join('');
   }
 
+  // ---- навигация: подсвечиваем раздел, который пересекает середину экрана ----
+  function setupNavCurrent() {
+    const links = document.querySelectorAll('#navLinks a:not(.nav__cta)');
+    const linkFor = { work: '#work', about: '#about', terms: '#about' };
+    let current = null;
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (e.isIntersecting) current = e.target.id;
+        else if (current === e.target.id) current = null;
+      });
+      links.forEach((a) => {
+        if (current && a.getAttribute('href') === linkFor[current]) a.setAttribute('aria-current', 'location');
+        else a.removeAttribute('aria-current');
+      });
+    }, { rootMargin: '-50% 0px -50% 0px' });
+    Object.keys(linkFor).forEach((id) => observer.observe(document.getElementById(id)));
+  }
+
   function renderHero() {
     const title = document.getElementById('heroTitle');
     title.innerHTML = C.hero.lines.map((line) => {
@@ -40,6 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
       return `<span class="line">${words}</span>`;
     }).join('\n');
     document.getElementById('heroSub').textContent = C.hero.sub;
+    document.getElementById('heroScrollLabel').textContent = C.hero.scrollLabel;
   }
 
   function renderStrip() {
@@ -96,7 +116,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function setupCoverCycle(card, project) {
     const covers = project.covers;
-    if (!covers || covers.length < 2) return;
+    if (!covers || covers.length < 2 || !window.gsap) return;
     const imageBox = card.querySelector('.project-card__image');
     const img = card.querySelector('.project-card__photo');
 
@@ -108,7 +128,7 @@ document.addEventListener('DOMContentLoaded', () => {
       for (let c = 0; c < PIXEL_COLS; c++) {
         const cell = document.createElement('span');
         const t = c / (PIXEL_COLS - 1);
-        cell.style.background = tintWithWhite(bg, 0.08 + t * 0.06);
+        cell.style.background = tintWithWhite(bg, 0.3 + t * 0.15);
         pixelate.appendChild(cell);
       }
     }
@@ -148,13 +168,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const A = C.about;
     document.getElementById('aboutIndex').textContent = A.eyebrowIndex;
     document.getElementById('aboutLabel').textContent = A.eyebrowLabel;
+    document.getElementById('aboutTitle').textContent = A.title;
+    document.getElementById('aboutLead').innerHTML = A.lead.map((p) => `<p>${p}</p>`).join('');
 
-    document.getElementById('aboutIntroTitle').textContent = A.intro.title;
-    document.getElementById('aboutIntroList').innerHTML = A.intro.items.map((item, i) =>
-      `<li><span>${pad(i + 1)}</span>${item}</li>`
-    ).join('');
-
-    document.getElementById('aboutMark').innerHTML = window.BRAND_MARK_SVG;
+    document.getElementById('aboutPhoto').outerHTML =
+      `<img class="about__photo" src="${A.photo.src}" alt="${A.photo.alt}" width="640" height="640" loading="lazy">`;
+    attachPhotoFallback(document.querySelector('.about__photo'));
     document.getElementById('aboutName').textContent = A.profile.name;
     document.getElementById('aboutRole').textContent = A.profile.role;
     document.getElementById('aboutAgenciesLabel').textContent = A.profile.agenciesLabel;
@@ -163,28 +182,26 @@ document.addEventListener('DOMContentLoaded', () => {
     ).join('');
     document.getElementById('aboutAgenciesNote').textContent = A.profile.agenciesNote;
 
+    document.getElementById('stepsTitle').textContent = A.stepsTitle;
     document.getElementById('processList').innerHTML = A.steps.map((s, i) => `
       <li data-reveal>
         <span class="process__num">${pad(i + 1)}</span>
         <div><p class="process__action">${s.action}</p><p class="process__result">${s.result}</p></div>
       </li>`).join('');
+  }
 
-    document.getElementById('formatLabel').textContent = A.format.label;
-    document.getElementById('formatTitle').textContent = A.format.title;
-    document.getElementById('formatText').textContent = A.format.text;
-
-    document.getElementById('comboTitle').textContent = A.combo.title;
-    document.getElementById('comboParagraphs').innerHTML = A.combo.paragraphs.map((p) => `<p>${p}</p>`).join('');
-
-    document.getElementById('notDoingTitle').textContent = A.notDoing.title;
-    document.getElementById('notDoingIntro').textContent = A.notDoing.intro;
-    document.getElementById('notDoingItems').innerHTML = A.notDoing.items.map((item) =>
-      `<div data-reveal><h4>${item.title}</h4><p>${item.text}</p></div>`
+  function renderTerms() {
+    const T = C.terms;
+    document.getElementById('termsIndex').textContent = T.eyebrowIndex;
+    document.getElementById('termsLabel').textContent = T.eyebrowLabel;
+    document.getElementById('termsTitle').textContent = T.title;
+    document.getElementById('priceLabel').textContent = T.price.label;
+    document.getElementById('priceValue').textContent = T.price.value;
+    document.getElementById('priceUnit').textContent = T.price.unit;
+    document.getElementById('priceNote').textContent = T.price.note;
+    document.getElementById('termsList').innerHTML = T.rows.map((r) =>
+      `<div><dt>${r.label}</dt><dd>${r.text}</dd></div>`
     ).join('');
-
-    document.getElementById('priceLabel').textContent = A.price.label;
-    document.getElementById('priceValue').textContent = A.price.value;
-    document.getElementById('priceNote').textContent = A.price.note;
   }
 
   function renderContact() {
@@ -192,16 +209,14 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('contactLabel').textContent = C.contact.eyebrowLabel;
     document.getElementById('contactTitle').textContent = C.contact.title;
     document.getElementById('contactSubtitle').textContent = C.contact.subtitle;
-    const emailLink = document.getElementById('contactEmail');
-    emailLink.href = `mailto:${C.contact.email}`;
-    emailLink.textContent = C.contact.email;
-    const phoneLink = document.getElementById('contactPhone');
-    phoneLink.href = `tel:${C.contact.phone.replace(/[^\d+]/g, '')}`;
-    phoneLink.textContent = C.contact.phone;
-    const social = document.getElementById('contactSocial');
-    social.innerHTML = C.contact.socials.map((s) =>
-      `<a href="${s.href}" target="_blank" rel="noopener" data-cursor-label="ОТКРЫТЬ">${s.label}<span class="social__handle">${s.handle}</span></a>`
-    ).join('');
+    const actions = document.getElementById('contactActions');
+    actions.innerHTML = contactActionsHTML(C.contact);
+    bindCopyButton(actions, C.contact);
+    document.getElementById('contactSocial').innerHTML =
+      `<span class="contact__social-label">${C.contact.socialsLabel}</span>` +
+      C.contact.socials.map((s) =>
+        `<a href="${s.href}" target="_blank" rel="noopener" data-cursor-label="ОТКРЫТЬ">${s.label}</a>`
+      ).join('');
   }
 
   function renderFooter() {
@@ -216,14 +231,22 @@ document.addEventListener('DOMContentLoaded', () => {
   renderStrip();
   renderWork();
   renderAbout();
+  renderTerms();
   renderContact();
   renderFooter();
+  setupNavCurrent();
+
+  // CDN с GSAP/Lenis не загрузился: показываем контент без анимаций, а не пустой прелоадер
+  if (!window.gsap || !window.ScrollTrigger) {
+    showWithoutMotion();
+    return;
+  }
 
   gsap.registerPlugin(ScrollTrigger);
   if (prefersReducedMotion) gsap.globalTimeline.timeScale(50);
 
   // ---- Lenis + GSAP ticker sync ----
-  if (!prefersReducedMotion) {
+  if (!prefersReducedMotion && window.Lenis) {
     const lenis = new Lenis({ duration: 1.2, smoothWheel: true });
     lenis.on('scroll', ScrollTrigger.update);
     gsap.ticker.add((time) => lenis.raf(time * 1000));
@@ -278,6 +301,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     window.addEventListener('mousemove', (e) => {
       const { clientX: x, clientY: y } = e;
+      document.body.classList.add('has-cursor');
       vLine.style.left = `${x}px`;
       hLine.style.top = `${y}px`;
       label.style.left = `${x + 14}px`;
