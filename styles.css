@@ -5,7 +5,6 @@
   --ink: #14171a;
   --mute: #5b5f63;
   --blue: #0a4da2;
-  --red: #c1272d;
   --line: rgba(20, 23, 26, 0.14);
   --line-strong: rgba(20, 23, 26, 0.55);
 
@@ -84,15 +83,6 @@ a:focus-visible, button:focus-visible {
   outline-offset: 3px;
 }
 
-/* ---- spectrum mark (the one place colour runs free — echoes the Munich '72 identity) ---- */
-.spectrum { display: inline-flex; height: 10px; width: 50px; }
-.spectrum span { flex: 1; }
-.spectrum span:nth-child(1) { background: var(--blue); }
-.spectrum span:nth-child(2) { background: #1c8c4b; }
-.spectrum span:nth-child(3) { background: #e8a400; }
-.spectrum span:nth-child(4) { background: #d2691e; }
-.spectrum span:nth-child(5) { background: var(--red); }
-
 /* ---- grid guides: the modular grid made visible, not just implied ---- */
 .grid-guides {
   position: absolute;
@@ -122,6 +112,7 @@ a:focus-visible, button:focus-visible {
   padding-left: 4px;
 }
 .grid-guides--numbered { counter-reset: col; }
+@media (max-width: 720px) { .grid-guides--numbered span::before { content: none; } }
 
 /* ---- custom cursor: a drafting crosshair with a live grid readout ---- */
 .cursor-line { position: fixed; background: var(--line-strong); pointer-events: none; z-index: 60; }
@@ -309,38 +300,22 @@ body:not(.has-cursor) .cursor-line, body:not(.has-cursor) .cursor-label { visibi
   transition: opacity 0.15s ease;
 }
 .project-card:hover .project-card__mark { opacity: 0.9; }
-.project-card:hover .project-card__image { filter: brightness(1.08); }
 .project-card__meta { padding: var(--space-2); border-top: 1px solid var(--line); }
 .project-card__meta h3 { font-size: 1.2rem; font-weight: 700; }
 .project-card__meta p { margin: 0.3em 0 0; color: var(--mute); font-size: 0.9rem; }
 .project-card__spacer { background: var(--paper); }
 
-.project-card--cta .project-card__image {
-  align-items: center;
-  justify-content: center;
-  background: var(--paper-dim);
-  color: var(--mute);
+/* P.06: пять цветов проектов и пустой шестой слот, на наведении слот заполняется */
+.project-card--cta .project-card__image { background: var(--paper); color: var(--ink); }
+.project-card--cta .project-card__index { color: var(--blue); }
+.cta-slots {
+  position: absolute; left: var(--space-2); right: var(--space-2); bottom: var(--space-2);
+  height: 38%;
+  display: grid; grid-template-columns: repeat(6, 1fr); gap: 1px;
 }
-.project-card--cta .project-card__mark {
-  position: static;
-  width: 32px; height: 32px;
-  border: none;
-  opacity: 1;
-}
-.project-card--cta .project-card__mark::before,
-.project-card--cta .project-card__mark::after {
-  content: '';
-  position: absolute;
-  background: var(--mute);
-}
-.project-card--cta .project-card__mark::before { width: 32px; height: 1px; top: 50%; left: 50%; transform: translate(-50%, -50%); }
-.project-card--cta .project-card__mark::after { width: 1px; height: 32px; top: 50%; left: 50%; transform: translate(-50%, -50%); }
-.project-card--cta .project-card__meta p a {
-  color: var(--ink);
-  text-decoration: underline;
-  text-underline-offset: 0.15em;
-}
-.project-card--cta .project-card__meta p a:hover { color: var(--mute); }
+.cta-slots span:last-child { border: 1px solid var(--line-strong); transition: background 0.2s ease, border-color 0.2s ease; }
+.project-card--cta:hover .cta-slots span:last-child { background: var(--ink); border-color: var(--ink); }
+.cta-link { color: var(--ink); text-decoration: underline; text-underline-offset: 0.15em; }
 
 @media (max-width: 720px) {
   .work__grid { grid-template-columns: 1fr; margin: 0 var(--space-2); }
@@ -408,6 +383,9 @@ body:not(.has-cursor) .cursor-line, body:not(.has-cursor) .cursor-label { visibi
 }
 .terms__price { grid-column: 1 / span 4; display: flex; flex-direction: column; align-items: flex-start; }
 .terms__price .section-title { padding: 0; margin-bottom: var(--space-3); }
+#termsOffers { align-self: stretch; }
+.terms__offer { display: flex; flex-direction: column; align-items: flex-start; }
+.terms__offer + .terms__offer { margin-top: var(--space-3); padding-top: var(--space-3); border-top: 1px solid var(--line); }
 .terms__price-label { font-size: 0.75rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--mute); }
 .terms__price-value { font-size: clamp(2.2rem, 1.4rem + 3vw, 3.6rem); font-weight: 800; line-height: 1.05; letter-spacing: -0.02em; color: var(--blue); margin-top: 0.15em; }
 .terms__price-unit { font-size: 1.1rem; font-weight: 700; margin-top: 0.2em; }
@@ -427,38 +405,47 @@ body:not(.has-cursor) .cursor-line, body:not(.has-cursor) .cursor-label { visibi
   .terms__list > div { grid-template-columns: 1fr; gap: 0.3em; }
 }
 
-/* ---- contact ---- */
+/* ---- contact: финал страницы, чернильное поле по левому краю сетки ---- */
 .contact {
   padding: var(--space-5) var(--space-3);
-  border-top: 1px solid var(--line-strong);
-  text-align: center;
+  background: var(--ink);
+  color: var(--paper);
 }
-.contact .section-title { padding: 0; }
+.contact .section-title { padding: 0; max-width: 22ch; }
 .contact .eyebrow { padding: 0; }
-.contact__subtitle { max-width: 52ch; margin: -0.5em auto var(--space-3); color: var(--mute); }
-.contact__email-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: var(--space-1) var(--space-2); margin: var(--space-3) 0 var(--space-2); }
+.contact .eyebrow__index { color: var(--paper); } /* синий на чернилах не читается */
+.contact .eyebrow__label { color: rgba(255, 255, 255, 0.7); }
+.contact .eyebrow__rule { background: rgba(255, 255, 255, 0.35); }
+.contact a:focus-visible, .contact button:focus-visible { outline-color: var(--paper); }
+.contact__subtitle { max-width: 52ch; margin: -0.5em 0 var(--space-3); color: rgba(255, 255, 255, 0.75); }
+.contact__email-row { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-1) var(--space-3); margin: var(--space-4) 0 var(--space-2); }
 .contact__link {
   display: inline-block;
-  font-size: clamp(1.4rem, 1rem + 2.6vw, 2.6rem);
-  font-weight: 700;
-  border-bottom: 2px solid var(--blue);
-  transition: color 0.15s ease;
+  font-size: clamp(1.4rem, 0.6rem + 4.2vw, 4.5rem);
+  font-weight: 800; letter-spacing: -0.02em; line-height: 1.1;
+  overflow-wrap: anywhere;
+  border-bottom: 2px solid var(--paper);
+  transition: color 0.15s ease, border-color 0.15s ease;
 }
-.contact__link:hover { color: var(--blue); }
-.contact__alt { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.4em var(--space-3); margin: 0 0 var(--space-4); font-weight: 500; }
+.contact__link:hover { color: rgba(255, 255, 255, 0.7); border-color: rgba(255, 255, 255, 0.4); }
+.contact .btn-outline { background: transparent; color: var(--paper); border-color: var(--paper); }
+.contact .btn-outline:hover { background: var(--paper); color: var(--ink); }
+.contact__alt { display: flex; flex-wrap: wrap; gap: 0.4em var(--space-3); margin: 0 0 var(--space-4); font-weight: 500; }
 .contact__alt a { padding-block: 0.6em; border-bottom: 1px solid transparent; transition: border-color 0.15s ease; }
 .contact__alt a:hover { border-color: currentColor; }
-.contact__social { display: flex; flex-wrap: wrap; justify-content: center; align-items: baseline; gap: 0.2em var(--space-2); color: var(--mute); font-size: 0.9rem; font-weight: 500; }
+.contact__social { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.2em var(--space-2); color: rgba(255, 255, 255, 0.7); font-size: 0.9rem; font-weight: 500; }
 .contact__social a { padding-block: 0.6em; transition: color 0.15s ease; }
-.contact__social a:hover { color: var(--ink); }
+.contact__social a:hover { color: var(--paper); }
 .contact__social-label { width: 100%; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; }
-
-/* на странице кейса блок контакта выровнен по левому краю, как остальной кейс */
-.contact--case { text-align: left; }
-.contact--case .eyebrow { padding: 0; }
-.contact--case .contact__subtitle { margin-left: 0; }
-.contact--case .contact__email-row, .contact--case .contact__alt { justify-content: flex-start; }
 .contact--case .contact__alt { margin-bottom: 0; }
+
+/* на телефоне посетитель из соцсетей пишет в мессенджер: Telegram первым и кнопкой */
+@media (max-width: 720px) {
+  .contact__actions { display: flex; flex-direction: column; align-items: flex-start; }
+  .contact__alt { order: -1; margin: 0 0 var(--space-2); }
+  .contact__alt a:first-child { border: 1px solid var(--paper); padding: 0.8em 1.2em; font-weight: 700; }
+  .contact__email-row { margin-top: var(--space-2); }
+}
 
 /* ---- footer ---- */
 .footer {

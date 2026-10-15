@@ -32,7 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // ---- навигация: подсвечиваем раздел, который пересекает середину экрана ----
   function setupNavCurrent() {
     const links = document.querySelectorAll('#navLinks a:not(.nav__cta)');
-    const linkFor = { work: '#work', about: '#about', terms: '#about' };
+    const linkFor = { work: '#work', about: '#about', terms: '#terms' };
     let current = null;
     const observer = new IntersectionObserver((entries) => {
       entries.forEach((e) => {
@@ -120,13 +120,17 @@ document.addEventListener('DOMContentLoaded', () => {
       </article>`;
     }).join('') + `
       <article class="project-card project-card--cta" data-reveal>
-        <div class="project-card__image project-card__image--cta">
-          <span class="project-card__mark"></span>
-        </div>
-        <div class="project-card__meta">
-          <h3>${C.work.cta.title}</h3>
-          <p><a href="#contact" data-cursor-label="НАПИСАТЬ">${C.work.cta.linkText}</a>${C.work.cta.suffix}</p>
-        </div>
+        <a href="#contact" data-cursor-label="НАПИСАТЬ">
+          <div class="project-card__image">
+            <span class="project-card__index">P.${pad(projects.length + 1)}</span>
+            <span class="project-card__mark"></span>
+            <span class="cta-slots" aria-hidden="true">${projects.map((p) => `<span class="project-card__image--${p.color}"></span>`).join('')}<span></span></span>
+          </div>
+          <div class="project-card__meta">
+            <h3>${C.work.cta.title}</h3>
+            <p><span class="cta-link">${C.work.cta.linkText}</span>${C.work.cta.suffix}</p>
+          </div>
+        </a>
       </article>` + ((projects.length + 1) % 2 === 1 ? '<div class="project-card__spacer" aria-hidden="true"></div>' : '');
     grid.querySelectorAll('img[data-fallback]').forEach(attachPhotoFallback);
     grid.querySelectorAll('.project-card').forEach((card, i) => {
@@ -228,10 +232,13 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('termsIndex').textContent = T.eyebrowIndex;
     document.getElementById('termsLabel').textContent = T.eyebrowLabel;
     document.getElementById('termsTitle').textContent = T.title;
-    document.getElementById('priceLabel').textContent = T.price.label;
-    document.getElementById('priceValue').textContent = T.price.value;
-    document.getElementById('priceUnit').textContent = T.price.unit;
-    document.getElementById('priceNote').textContent = T.price.note;
+    document.getElementById('termsOffers').innerHTML = T.offers.map((o) => `
+      <div class="terms__offer">
+        <span class="terms__price-label">${o.label}</span>
+        <strong class="terms__price-value">${o.value}</strong>
+        <span class="terms__price-unit">${o.unit}</span>
+        <p class="terms__price-note">${o.note}</p>
+      </div>`).join('');
     document.getElementById('termsList').innerHTML = T.rows.map((r) =>
       `<div><dt>${r.label}</dt><dd>${r.text}</dd></div>`
     ).join('');
