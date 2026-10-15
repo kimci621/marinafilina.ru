@@ -52,20 +52,32 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('projectSubtitle').textContent = project.subtitle;
     document.getElementById('projectServices').innerHTML =
       project.services.map((s) => `<span>${s}</span>`).join('');
+    // та же обложка и цвет, что на карточке, по которой кликнули: карточка «переезжает» в кейс
+    const cover = document.getElementById('projectCover');
+    cover.classList.add(`project-card__image--${project.color}`);
+    cover.innerHTML = `<img class="project-card__photo" data-fallback src="${project.covers[0]}" alt="${project.title}, обложка">`;
+    attachPhotoFallback(cover.querySelector('img'));
   }
 
   function renderGallery() {
     const gallery = document.getElementById('projectGallery');
-    const normalCount = project.photos.length - 1; // первое фото — is-wide на всю ширину
+    // горизонтальные исходники (wide) на всю ширину, вертикальные по два в ряд
+    const normalCount = project.photos.filter((p) => !p.wide).length;
     gallery.innerHTML = project.photos.map((photo, i) => `
-      <figure class="project-card__image project-card__image--${project.color} ${i === 0 ? 'is-wide' : ''}" data-reveal>
+      <figure class="project-card__image project-card__image--${project.color} ${photo.wide ? 'is-wide' : ''}" data-reveal>
         <picture>
           ${photo.mobile ? `<source media="(max-width: 720px)" srcset="${photo.mobile}">` : ''}
           <img class="project-card__photo" data-fallback src="${photo.src}" alt="${project.title} — фото ${i + 1}" loading="lazy">
         </picture>
         <span class="project-card__index">${pad(i + 1)}</span>
       </figure>`).join('') + (normalCount % 2 === 1 ? '<div class="project-gallery__spacer" aria-hidden="true"></div>' : '');
-    gallery.querySelectorAll('img[data-fallback]').forEach(attachPhotoFallback);
+    gallery.querySelectorAll('img[data-fallback]').forEach((img) => {
+      attachPhotoFallback(img);
+      // ячейка повторяет пропорции загруженного кадра (на мобильном это mobile-версия), без полей вокруг фото
+      img.addEventListener('load', () => {
+        img.closest('figure').style.aspectRatio = `${img.naturalWidth} / ${img.naturalHeight}`;
+      });
+    });
   }
 
   function renderDescription() {
@@ -142,6 +154,7 @@ document.addEventListener('DOMContentLoaded', () => {
   gsap.timeline()
     .to(gridSpans, { scaleY: 1, duration: 0.5, ease: 'power2.out', stagger: 0.025 })
     .to(titleWords, { yPercent: 0, duration: 0.6, ease: 'power3.out', stagger: 0.06 }, '-=0.25')
+    .fromTo('#projectCover', { clipPath: 'inset(100% 0 0 0)' }, { clipPath: 'inset(0% 0 0 0)', duration: 0.8, ease: 'power3.out' }, '-=0.45')
     .fromTo('.project-hero__back', { opacity: 0 }, { opacity: 1, duration: 0.4 }, 0);
 
   // ---- custom cursor ----

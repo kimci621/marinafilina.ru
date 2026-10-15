@@ -60,6 +60,35 @@ document.addEventListener('DOMContentLoaded', () => {
     }).join('\n');
     document.getElementById('heroSub').textContent = C.hero.sub;
     document.getElementById('heroScrollLabel').textContent = C.hero.scrollLabel;
+    renderHeroReel();
+  }
+
+  // ---- hero: работы в первом экране, по очереди все проекты тем же пиксельным переходом ----
+  function renderHeroReel() {
+    const projects = C.work.projects;
+    const reel = document.getElementById('heroReel');
+    reel.innerHTML = `
+      <div class="project-card__image">
+        <img class="project-card__photo" data-fallback src="${projects[0].covers[0]}" alt="">
+        <span class="project-card__mark"></span>
+      </div>
+      <div class="project-card__meta"><span class="hero__reel-index"></span><b></b><p></p></div>`;
+    const box = reel.querySelector('.project-card__image');
+    const img = reel.querySelector('img');
+    attachPhotoFallback(img);
+    const show = (i) => {
+      const p = projects[i];
+      reel.href = `project.html?slug=${p.slug}`;
+      box.className = `project-card__image project-card__image--${p.color}`;
+      img.style.display = '';
+      img.src = p.covers[0];
+      img.alt = p.title;
+      reel.querySelector('.hero__reel-index').textContent = `${p.index} / ${pad(projects.length)}`;
+      reel.querySelector('b').textContent = p.title;
+      reel.querySelector('p').textContent = p.subtitle;
+    };
+    show(0);
+    setupCoverCycle(reel, projects.length, show);
   }
 
   function renderStrip() {
@@ -100,7 +129,12 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>
       </article>` + ((projects.length + 1) % 2 === 1 ? '<div class="project-card__spacer" aria-hidden="true"></div>' : '');
     grid.querySelectorAll('img[data-fallback]').forEach(attachPhotoFallback);
-    grid.querySelectorAll('.project-card').forEach((card, i) => { if (projects[i]) setupCoverCycle(card, projects[i]); });
+    grid.querySelectorAll('.project-card').forEach((card, i) => {
+      const p = projects[i];
+      if (!p) return;
+      const img = card.querySelector('.project-card__photo');
+      setupCoverCycle(card, p.covers.length, (k) => { img.src = p.covers[k]; });
+    });
   }
 
   // ---- project cards: cycle 3 covers every 5s with a right-to-left pixelation wipe, pausing on hover ----
@@ -114,35 +148,34 @@ document.addEventListener('DOMContentLoaded', () => {
     return `rgb(${mix(r)}, ${mix(g)}, ${mix(b)})`;
   }
 
-  function setupCoverCycle(card, project) {
-    const covers = project.covers;
-    if (!covers || covers.length < 2 || !window.gsap) return;
+  // show(i) меняет содержимое кадра под пикселями: обложку на карточке или целый проект в hero
+  function setupCoverCycle(card, count, show) {
+    if (count < 2 || !window.gsap) return;
     const imageBox = card.querySelector('.project-card__image');
-    const img = card.querySelector('.project-card__photo');
-
-    const bg = getComputedStyle(imageBox).backgroundColor.match(/\d+/g).map(Number);
 
     const pixelate = document.createElement('div');
     pixelate.className = 'project-card__pixelate';
-    for (let r = 0; r < PIXEL_ROWS; r++) {
-      for (let c = 0; c < PIXEL_COLS; c++) {
-        const cell = document.createElement('span');
-        const t = c / (PIXEL_COLS - 1);
-        cell.style.background = tintWithWhite(bg, 0.3 + t * 0.15);
-        pixelate.appendChild(cell);
-      }
-    }
+    for (let i = 0; i < PIXEL_ROWS * PIXEL_COLS; i++) pixelate.appendChild(document.createElement('span'));
     imageBox.appendChild(pixelate);
     const cells = pixelate.children;
 
+    // тон берём из текущего фона: в hero он меняется вместе с проектом
+    function paintCells() {
+      const bg = getComputedStyle(imageBox).backgroundColor.match(/\d+/g).map(Number);
+      [...cells].forEach((cell, i) => {
+        const t = (i % PIXEL_COLS) / (PIXEL_COLS - 1);
+        cell.style.background = tintWithWhite(bg, 0.3 + t * 0.15);
+      });
+    }
+
     let index = 0;
     let hovered = false;
-    let timer = null;
-    const schedule = () => { timer = setTimeout(tick, 5000); };
+    const schedule = () => { setTimeout(tick, 5000); };
 
     function tick() {
       if (hovered) { schedule(); return; }
-      const next = (index + 1) % covers.length;
+      const next = (index + 1) % count;
+      paintCells();
       gsap.timeline({ onComplete: schedule })
         .to(cells, {
           opacity: 0.92,
@@ -150,7 +183,7 @@ document.addEventListener('DOMContentLoaded', () => {
           ease: 'sine.inOut',
           stagger: { each: 0.035, from: 'end', grid: [PIXEL_ROWS, PIXEL_COLS], axis: 'x' },
         })
-        .call(() => { img.src = covers[next]; index = next; })
+        .call(() => { show(next); index = next; })
         .to(cells, {
           opacity: 0,
           duration: 0.5,
@@ -285,6 +318,7 @@ document.addEventListener('DOMContentLoaded', () => {
     gsap.timeline()
       .to(gridSpans, { scaleY: 1, duration: 0.5, ease: 'power2.out', stagger: 0.025 })
       .to(words, { clipPath: 'inset(0 0 0% 0)', duration: 0.6, ease: 'power3.out', stagger: 0.06 }, '-=0.25')
+      .fromTo('#heroReel', { clipPath: 'inset(100% 0 0 0)' }, { clipPath: 'inset(0% 0 0 0)', duration: 0.8, ease: 'power3.out' }, '-=0.45')
       .fromTo('.hero__sub, .hero__scroll',
         { opacity: 0, y: 12 },
         { opacity: 1, y: 0, duration: 0.5, stagger: 0.08 },

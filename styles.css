@@ -227,6 +227,7 @@ body:not(.has-cursor) .cursor-line, body:not(.has-cursor) .cursor-label { visibi
 .hero__scroll:hover { color: var(--ink); }
 .hero__scroll > span:first-child { width: 1px; height: 28px; background: currentColor; }
 
+
 /* ---- index strip (marquee, restyled as a running readout) ---- */
 .strip {
   border-top: 1px solid var(--line-strong);
@@ -284,7 +285,7 @@ body:not(.has-cursor) .cursor-line, body:not(.has-cursor) .cursor-label { visibi
 /* фирменный цвет под каждый проект — по его собственной цветовой гамме, не общая палитра */
 .project-card__image--a { background: #3f1568; } /* факультет ПММ — глубокий фиолетовый генеративной графики */
 .project-card__image--b { background: #16323f; } /* Syntepart — заводской тёмно-синий */
-.project-card__image--c { background: #e8601a; color: var(--ink); } /* Fittin — фирменный оранжевый */
+.project-card__image--c { background: #ff8200; color: var(--ink); } /* Fittin — Fittin Orange, Pantone 151 C из их гайда */
 .project-card__image--d { background: #245f7d; } /* FLY & SURF — океанический синий */
 .project-card__image--e { background: #e2677f; color: var(--ink); } /* MANIPULA — тёплый коралловый */
 .project-card__photo {
@@ -516,18 +517,38 @@ body:not(.has-cursor) .cursor-line, body:not(.has-cursor) .cursor-label { visibi
   color: var(--ink);
 }
 
+/* работа в первом экране: на главной по очереди все проекты, на кейсе обложка с карточки */
+.hero__text { position: relative; z-index: 1; }
+.hero__reel, .project-hero__cover { position: relative; z-index: 1; margin-top: var(--space-4); }
+.hero__reel { display: block; border: 1px solid var(--line-strong); background: var(--paper); }
+.hero__reel .project-card__image, .project-hero__cover { aspect-ratio: 1 / 1; }
+.hero__reel .project-card__meta b { display: block; font-size: 1.2rem; font-weight: 700; }
+.hero__reel-index { display: block; margin-bottom: 0.4em; font-size: 0.8rem; font-weight: 700; color: var(--blue); font-variant-numeric: tabular-nums; }
+.hero__reel .project-card__image { justify-content: flex-end; } /* номер в подписи, на обложке только уголок */
+/* колонки 1-7 под текст, 9-12 под работу: те же 12 колонок и 1px, что у направляющих */
+@media (min-width: 901px) {
+  .hero, .project-hero {
+    display: grid; grid-template-columns: repeat(12, 1fr); column-gap: var(--gutter);
+    align-items: center;
+  }
+  .hero { padding-top: calc(var(--space-4) + 3rem); padding-bottom: var(--space-3); } /* кадр с подписью целиком в первом экране ноутбука */
+  .hero__text { grid-column: 1 / 8; }
+  .hero__reel, .project-hero__cover { grid-column: 9 / 13; margin-top: 0; }
+}
 .project-gallery {
   display: grid; grid-template-columns: repeat(2, 1fr); gap: 1px;
   background: var(--line-strong);
   border-top: 1px solid var(--line-strong); border-bottom: 1px solid var(--line-strong);
 }
-.project-gallery figure { margin: 0; aspect-ratio: 4 / 3; }
-.project-gallery figure.is-wide { grid-column: 1 / -1; aspect-ratio: 21 / 9; }
-.project-gallery__spacer { background: var(--paper); aspect-ratio: 4 / 3; }
+/* исходники нарезаны под эту сетку: 692 + 16 + 692 = 1400. dense подтягивает одиночную вертикаль в пару */
+.project-gallery { grid-auto-flow: row dense; }
+.project-gallery figure { margin: 0; aspect-ratio: 692 / 896; }
+.project-gallery figure.is-wide { grid-column: 1 / -1; aspect-ratio: 1400 / 896; }
+.project-gallery .project-card__index { order: -1; } /* номер кадра слева, как на карточках: <picture> тоже flex-элемент */
+.project-gallery__spacer { background: var(--paper); }
 @media (max-width: 720px) {
   .project-gallery { grid-template-columns: 1fr; }
-  .project-gallery figure { aspect-ratio: 3 / 4; }
-  .project-gallery figure.is-wide { aspect-ratio: 4 / 3; }
+  .project-gallery figure.is-wide { aspect-ratio: 692 / 896; }
   .project-gallery__spacer { display: none; }
 }
 

@@ -5,7 +5,7 @@ colors:
   signal-blue: "#0a4da2"
   project-violet: "#3f1568"
   project-plant-navy: "#16323f"
-  project-orange: "#e8601a"
+  project-orange: "#ff8200"
   project-ocean: "#245f7d"
   project-coral: "#e2677f"
   paper: "#ffffff"
